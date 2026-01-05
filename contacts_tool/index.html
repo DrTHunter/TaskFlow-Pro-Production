@@ -1,0 +1,1354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Management System</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Add Quill stylesheet -->
+    <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f5f7fa;
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            width: 70px;
+            background-color: #2a3647;
+            color: white;
+            height: 100vh;
+            padding: 20px 0;
+            transition: all 0.3s ease;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+        }
+
+        .sidebar:hover {
+            width: 250px;
+            align-items: flex-start;
+            padding-left: 20px;
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+            margin-bottom: 40px;
+            width: 100%;
+            justify-content: center;
+        }
+
+        .sidebar:hover .logo-container {
+            justify-content: flex-start;
+            padding-left: 10px;
+        }
+
+        .logo {
+            width: 40px;
+            height: 40px;
+            background-color: #1a2533;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            font-weight: bold;
+            color: #fff;
+        }
+
+        .logo-text {
+            margin-left: 15px;
+            font-size: 18px;
+            font-weight: 600;
+            display: none;
+        }
+
+        .sidebar:hover .logo-text {
+            display: block;
+        }
+
+        .nav-menu {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .menu-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 15px;
+            margin-bottom: 5px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            width: calc(100% - 10px);
+            color: #d1d5db;
+        }
+
+        .menu-item:hover {
+            background-color: #1a2533;
+            color: white;
+        }
+
+        .menu-item.active {
+            background-color: #1a2533;
+            color: white;
+        }
+
+        .menu-icon {
+            font-size: 18px;
+            min-width: 30px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .menu-text {
+            margin-left: 10px;
+            font-size: 14px;
+            font-weight: 500;
+            display: none;
+            white-space: nowrap;
+        }
+
+        .sidebar:hover .menu-text {
+            display: block;
+        }
+
+        .menu-chevron {
+            margin-left: auto;
+            font-size: 12px;
+            transition: transform 0.3s;
+            display: none;
+        }
+
+        .sidebar:hover .menu-chevron {
+            display: block;
+        }
+
+        .menu-item.active .menu-chevron {
+            transform: rotate(180deg);
+        }
+
+        .divider {
+            height: 1px;
+            background-color: #3e4b5e;
+            margin: 20px 0;
+            width: 80%;
+        }
+
+        /* Main Content Styles */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
+            background-color: white;
+        }
+
+        .content-header {
+            padding: 15px 20px;
+            background-color: #f8f9fa;
+            border-bottom: 1px solid #e0e0e0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .content-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        /* Tab Content Styles */
+        .tab-content {
+            display: none;
+            overflow-y: auto;
+            flex: 1;
+            padding: 0;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Contacts Tab Specific Styles */
+        .input-section {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 15px;
+            transition: all 0.3s ease;
+            overflow: hidden;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 15px;
+            padding: 15px;
+        }
+
+        .input-section.collapsed {
+            max-height: 0;
+            margin-bottom: 0;
+            opacity: 0;
+            visibility: hidden;
+            border-bottom: none;
+            padding-bottom: 0;
+            padding: 0 15px;
+        }
+
+        .contact-input-row {
+            display: flex;
+            width: 100%;
+            flex-wrap: wrap;
+            gap: 0;
+        }
+
+        /* Make Name & Job Title larger (flex: 2) */
+        .input-group:nth-child(1),
+        .input-group:nth-child(2) {
+            flex: 2;
+            margin-right: 1%;
+        }
+
+        /* Make Email & Phone smaller (flex: 1.5) */
+        .input-group:nth-child(3),
+        .input-group:nth-child(4) {
+            flex: 1;
+            margin-right: 1%;
+        }
+
+        /* Remove margin from the last element */
+        .input-group:last-child {
+            margin-right: 0;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .input-group label {
+            font-size: 12px;
+            margin-bottom: 4px;
+            color: #555;
+        }
+
+        input, select, textarea {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 13px;
+            width: 100%;
+        }
+
+        button {
+            padding: 8px 15px;
+            background-color: #1a73e8;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: filter 0.3s;
+            font-size: 13px;
+            height: fit-content;
+        }
+
+        button:hover {
+            filter: brightness(0.9);
+        }
+
+        /* Add Contact button specific styling */
+        .add-contact-btn {
+                width: fit-content;
+                padding: 0 12px;
+                height: 36px;
+                white-space: nowrap;
+                margin-left: 10px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+        }
+
+        .contact-item {
+            padding: 8px 12px;
+            background-color: white;
+            margin-bottom: 8px;
+            border-radius: 4px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            position: relative;
+            margin: 8px 15px;
+        }
+
+        .contact-controls {
+            position: absolute;
+            top: 8px;
+            right: 12px;
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .delete-btn {
+            background-color: #dc3545;
+            padding: 6px 12px;
+        }
+
+        .contact-move-buttons {
+            position: absolute;
+            top: 50px;
+            right: 12px;
+            display: flex;
+            gap: 5px;
+        }
+
+        .search-container {
+            display: inline-flex;
+            flex-grow: 1;
+            margin-bottom: 0;
+            align-items: center;
+        }
+
+        .search-bar {
+            flex-grow: 1;
+            max-width: 400px;
+            margin-left: 10px;
+        }
+
+        .filter-btn {
+            padding: 8px 12px;
+            font-size: 12px;
+            background-color: #6c757d;
+            margin-left: 10px;
+        }
+
+        .notes-container {
+            width: 100%;
+            margin-top: 15px;
+        }
+        
+        /* Updated notes editor styles for auto-growing */
+        .ql-editor {
+            min-height: 150px;
+            font-size: 14px;
+            padding: 10px;
+            height: auto !important;
+            overflow-y: visible !important;
+        }
+        
+        .ql-container {
+            border: 1px solid #ddd !important;
+            border-radius: 4px;
+        }
+        
+        .ql-toolbar {
+            border: 1px solid #ddd !important;
+            border-bottom: none !important;
+            border-radius: 4px 4px 0 0;
+        }
+
+        .subheading {
+            background-color: #e0e0e0;
+            padding: 5px 10px;
+            margin: 10px 15px;
+            border-radius: 4px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            position: relative;
+            cursor: pointer;
+            height: 30px;
+        }
+
+        .subheading-input {
+            border: none;
+            background: transparent;
+            font-weight: bold;
+            flex: 1;
+            padding: 2px 5px;
+            height: 20px;
+        }
+
+        .subheading-input:focus {
+            outline: none;
+            background: white;
+        }
+
+        .subheading-controls {
+            display: flex;
+            gap: 5px;
+            margin-left: 10px;
+        }
+
+        .contact-subheading-selector {
+            position: absolute;
+            right: 50px;
+            top: 8px;
+        }
+
+        .contact-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-left: 25px;
+            flex-wrap: wrap;
+        }
+
+        .contact-details-row {
+            display: flex;
+            gap: 15px;
+            margin-left: 10px;
+            flex-wrap: wrap;
+        }
+
+        .contact-details-row > div {
+            display: flex;
+            align-items: center;
+        }
+
+        .contact-details-row span {
+            color: #555;
+            font-size: 13px;
+            margin-right: 5px;
+        }
+
+        .contact-flag {
+            color: #ddd;
+            cursor: pointer;
+            position: absolute;
+            left: 15px;
+            top: 15px;
+            font-size: 16px;
+        }
+
+        .contact-flag.active {
+            color: #ffc107;
+        }
+
+        .waiting-on-input {
+            width: calc(80%) !important;
+            min-width: 200px;
+            height: 36px;
+            margin-left: 5px; !important;
+            padding: 8px;
+            font-size: 13px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        .notes-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin: 10px 0;
+            cursor: pointer;
+            color: #1a73e8;
+            font-size: 0.9em;
+        }
+
+        .notes-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+        }
+
+        .notes-content.expanded {
+            max-height: none;
+        }
+
+        .settings-menu {
+            display: none;
+            position: absolute;
+            right: 10px;
+            top: 50px;
+            background-color: white;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            z-index: 100;
+        }
+
+        .settings-menu.active {
+            display: block;
+        }
+
+        /* Contact Name and Waiting On adjustments */
+        .contact-name-input {
+            width: 60% !important;
+        }
+
+        /* Subheading controls spacing */
+        .subheading-controls {
+            gap: 8px !important;
+            margin-left: 15px !important;
+        }
+
+        /* Add button sizing */
+        .new-subheading-bar button {
+            height: 30px !important;
+            padding: 0 10px !important;
+            line-height: 30px !important;
+        }
+
+        .contacts-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            padding: 0 15px;
+        }
+
+        .new-item-btn {
+            min-width: auto;
+            width: auto;
+            margin-right: 10px;
+            padding: 6px 10px; 
+            font-size: 13px;
+            background-color: #28a745;
+            white-space: nowrap;
+        }
+
+        .reset-btn {
+            background-color: #dc3545;
+            margin-top: 15px;
+        }
+
+        .new-subheading-bar {
+            display: flex;
+            gap: 5px;
+            margin: 10px 15px;
+            height: 30px;
+            background-color: #e0e0e0;
+            padding: 5px 10px;
+            border-radius: 4px;
+            align-items: center;
+        }
+
+        .new-subheading-input {
+            flex: 1;
+            border: none;
+            background: transparent;
+            padding: 2px 5px;
+            height: 20px;
+        }
+
+        .new-subheading-input:focus {
+            outline: none;
+            background: white;
+        }
+
+        .collapsible-content {
+            max-height: 1000px;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+
+        .collapsible-content.collapsed {
+            max-height: 0;
+        }
+
+        /* Waiting On row styling */
+        .waiting-on-row {
+            display: flex;
+            align-items: flex-end;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        .waiting-on-container {
+            flex: 1;
+            margin-right: 10px;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                flex-direction: column;
+                height: auto;
+            }
+            
+            .sidebar {
+                width: 100%;
+                height: auto;
+                flex-direction: row;
+                padding: 10px;
+                align-items: center;
+            }
+            
+            .sidebar:hover {
+                width: 100%;
+                height: auto;
+            }
+            
+            .logo-container {
+                margin-bottom: 0;
+                margin-right: 20px;
+            }
+            
+            .nav-menu {
+                flex-direction: row;
+                overflow-x: auto;
+            }
+            
+            .menu-item {
+                margin-bottom: 0;
+                margin-right: 5px;
+                padding: 10px;
+            }
+            
+            .menu-text {
+                display: none !important;
+            }
+            
+            .divider {
+                display: none;
+            }
+            
+            .main-content {
+                height: auto;
+            }
+
+            /* Contacts responsive styles */
+            .input-section {
+                flex-direction: column;
+            }
+            
+            button {
+                padding: 6px 12px;
+            }
+
+            .contact-subheading-selector {
+                position: static;
+                margin-top: 5px;
+                width: 100%;
+            }
+
+            .contact-name-input,
+            .waiting-on-input {
+                width: 100% !important;
+                min-width: auto !important;
+            }
+
+            .contact-details-row {
+                flex-direction: column;
+                gap: 5px;
+                margin-left: 0;
+            }
+
+            /* Adjust flex layout for mobile */
+            .contact-input-row {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .input-group:nth-child(1),
+            .input-group:nth-child(2),
+            .input-group:nth-child(3),
+            .input-group:nth-child(4) {
+                flex: 1 1 100%;
+                margin-right: 0;
+                width: 100%;
+            }
+
+            /* Mobile waiting on row */
+            .waiting-on-row {
+                flex-direction: column;
+            }
+            
+            .waiting-on-container {
+                width: 100%;
+                margin-right: 0;
+                margin-bottom: 10px;
+            }
+            
+            .add-contact-btn {
+                width: 100%;
+                margin-left: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="logo-container">
+            <div class="logo">S</div>
+            <div class="logo-text">System Manager</div>
+        </div>
+        
+        <div class="nav-menu">
+            <div class="menu-item active" onclick="setActive(this); showTab('dashboard')">
+                <div class="menu-icon"><i class="fas fa-home"></i></div>
+                <div class="menu-text">Dashboard</div>
+                <div class="menu-chevron"><i class="fas fa-chevron-down"></i></div>
+            </div>
+            
+            <div class="menu-item" onclick="setActive(this); showTab('tasks')">
+                <div class="menu-icon"><i class="fas fa-tasks"></i></div>
+                <div class="menu-text">Tasks</div>
+                <div class="menu-chevron"><i class="fas fa-chevron-down"></i></div>
+            </div>
+            
+            <div class="menu-item" onclick="setActive(this); showTab('notes')">
+                <div class="menu-icon"><i class="fas fa-sticky-note"></i></div>
+                <div class="menu-text">Notes</div>
+                <div class="menu-chevron"><i class="fas fa-chevron-down"></i></div>
+            </div>
+            
+            <div class="menu-item" onclick="setActive(this); showTab('contacts')">
+                <div class="menu-icon"><i class="fas fa-address-book"></i></div>
+                <div class="menu-text">Contacts</div>
+                <div class="menu-chevron"><i class="fas fa-chevron-down"></i></div>
+            </div>
+            
+            <div class="menu-item" onclick="setActive(this); showTab('process')">
+                <div class="menu-icon"><i class="fas fa-project-diagram"></i></div>
+                <div class="menu-text">Process</div>
+                <div class="menu-chevron"><i class="fas fa-chevron-down"></i></div>
+            </div>
+            
+            <div class="menu-item" onclick="setActive(this); showTab('calendar')">
+                <div class="menu-icon"><i class="fas fa-calendar-alt"></i></div>
+                <div class="menu-text">Calendar</div>
+                <div class="menu-chevron"><i class="fas fa-chevron-down"></i></div>
+            </div>
+            
+            <div class="divider"></div>
+            
+            <div class="menu-item" onclick="setActive(this); showTab('settings')">
+                <div class="menu-icon"><i class="fas fa-cog"></i></div>
+                <div class="menu-text">Settings</div>
+                <div class="menu-chevron"><i class="fas fa-chevron-down"></i></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="content-header">
+            <div class="content-title" id="contentTitle">Dashboard</div>
+        </div>
+
+        <!-- Dashboard Tab -->
+        <div id="dashboard" class="tab-content active">
+            <h2>Dashboard Content</h2>
+            <p>This would contain your dashboard information and metrics.</p>
+        </div>
+
+        <!-- Tasks Tab -->
+        <div id="tasks" class="tab-content">
+            <h2>Tasks</h2>
+            <p>This would contain your task management system.</p>
+        </div>
+
+        <!-- Notes Tab -->
+        <div id="notes" class="tab-content">
+            <h2>Notes</h2>
+            <p>This would contain your note-taking functionality.</p>
+        </div>
+
+        <!-- Contacts Tab -->
+        <div id="contacts" class="tab-content">
+            <div class="contacts-header">
+                <button class="new-item-btn" onclick="toggleInputs('contacts')">
+                    <i class="fas fa-plus"></i> New Contact
+                </button>
+                <div class="search-container">
+                    <input type="text" class="search-bar" id="contactSearch" placeholder="Search contacts..." oninput="searchContacts()">
+                    <button class="filter-btn" onclick="toggleFlaggedContacts()">
+                        <i class="fas fa-flag"></i> Flagged Only
+                    </button>
+                </div>
+            </div>
+            
+            <div class="input-section collapsed">
+                <div class="contact-input-row">
+                    <!-- Name -->
+                    <div class="input-group">
+                        <label for="contactName">Name</label>
+                        <input type="text" id="contactName" placeholder="Name">
+                    </div>
+                    
+                    <!-- Job Title -->
+                    <div class="input-group">
+                        <label for="contactJobTitle">Job Title</label>
+                        <input type="text" id="contactJobTitle" placeholder="Job Title">
+                    </div>
+                    
+                    <!-- Email -->
+                    <div class="input-group">
+                        <label for="contactEmail">Email</label>
+                        <input type="email" id="contactEmail" placeholder="Email">
+                    </div>
+                    
+                    <!-- Phone -->
+                    <div class="input-group">
+                        <label for="contactPhone">Phone</label>
+                        <input type="tel" id="contactPhone" placeholder="Phone">
+                    </div>
+                </div>
+                
+                <!-- Waiting On (Full Width Below) -->
+                <div class="waiting-on-row">
+                    <div class="waiting-on-container">
+                        <label for="contactWaitingOn">Waiting On</label>
+                        <input type="text" class="waiting-on-input" placeholder="Waiting on..." id="contactWaitingOn">
+                    </div>
+                    <button class="add-contact-btn" onclick="addContact()">Add Contact</button>
+                </div>
+                
+                <!-- Notes (Full Width Below) - Now using Quill -->
+                <div class="notes-container" style="width: 100%; margin-top: 10px;">
+                    <label for="contactNotes">Notes</label>
+                    <div id="contactNotesEditor"></div>
+                </div>
+            </div>
+            
+            <div class="new-subheading-bar">
+                <input type="text" id="newContactSubheading" class="new-subheading-input" placeholder="New subheading name">
+                <button onclick="addSubheading('contact')">Add</button>
+            </div>
+            
+            <div id="contactsList"></div>
+        </div>
+
+        <!-- Process Tab -->
+        <div id="process" class="tab-content">
+            <h2>Process</h2>
+            <p>This would contain your workflow and process management tools.</p>
+        </div>
+
+        <!-- Calendar Tab -->
+        <div id="calendar" class="tab-content">
+            <h2>Calendar Content</h2>
+            <p>This would contain your calendar view and scheduling tools.</p>
+        </div>
+
+        <!-- Settings Tab -->
+        <div id="settings" class="tab-content">
+            <h2>Settings</h2>
+            <p>This would contain your application settings and configuration options.</p>
+        </div>
+    </div>
+
+    <!-- Add Quill library -->
+    <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
+    <script>
+        // Initialize Quill editor
+        let quillEditor;
+        
+        // Sidebar functionality
+        function setActive(clickedItem) {
+            document.querySelectorAll('.menu-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            clickedItem.classList.add('active');
+        }
+
+        function showTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.getElementById(tabName).classList.add('active');
+            
+            const titleMap = {
+                'dashboard': 'Dashboard',
+                'tasks': 'Tasks',
+                'notes': 'Notes',
+                'contacts': 'Contacts',
+                'process': 'Process',
+                'calendar': 'Calendar',
+                'settings': 'Settings'
+            };
+            document.getElementById('contentTitle').textContent = titleMap[tabName];
+        }
+
+        // Auto-resize textarea function
+        function autoResizeTextarea(textarea) {
+            textarea.style.height = 'auto';
+            textarea.style.height = (textarea.scrollHeight) + 'px';
+        }
+
+        // Contacts Tab Functionality
+        // Data Management
+        let contacts = JSON.parse(localStorage.getItem('contacts')) || [];
+        let contactSubheadings = JSON.parse(localStorage.getItem('contactSubheadings')) || ['General'];
+        let collapsedSubheadings = JSON.parse(localStorage.getItem('collapsedSubheadings')) || {};
+        let showFlaggedOnly = false;
+
+        // Initialize Quill editor when DOM is loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            quillEditor = new Quill('#contactNotesEditor', {
+                modules: {
+                    toolbar: [
+                        ['bold', 'italic', 'underline', 'strike'],
+                        ['blockquote', 'code-block'],
+                        [{ 'header': 1 }, { 'header': 2 }],
+                        [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                        [{ 'script': 'sub'}, { 'script': 'super' }],
+                        [{ 'indent': '-1'}, { 'indent': '+1' }],
+                        [{ 'direction': 'rtl' }],
+                        [{ 'size': ['small', false, 'large', 'huge'] }],
+                        [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
+                        [{ 'color': [] }, { 'background': [] }],
+                        [{ 'font': [] }],
+                        [{ 'align': [] }],
+                        ['clean'],
+                        ['link', 'image']
+                    ]
+                },
+                placeholder: 'Add notes...',
+                theme: 'snow'
+            });
+
+            // Auto-grow functionality for main editor
+            quillEditor.on('text-change', function() {
+                const editor = document.querySelector('#contactNotesEditor .ql-editor');
+                editor.style.height = 'auto';
+                editor.style.height = editor.scrollHeight + 'px';
+            });
+        });
+
+        // Toggle input sections
+        function toggleInputs(tab) {
+            const inputSection = document.querySelector(`#${tab} .input-section`);
+            const toggleBtn = document.querySelector(`#${tab} .new-item-btn`);
+            
+            inputSection.classList.toggle('collapsed');
+            
+            if (inputSection.classList.contains('collapsed')) {
+                toggleBtn.innerHTML = '<i class="fas fa-plus"></i> New Contact';
+            } else {
+                toggleBtn.innerHTML = 'Hide Form';
+            }
+        }
+
+        // Toggle flagged contacts filter
+        function toggleFlaggedContacts() {
+            showFlaggedOnly = !showFlaggedOnly;
+            renderContacts();
+        }
+
+        // Reset all data
+        function resetAllData() {
+            if (confirm('Are you sure you want to delete ALL data? This cannot be undone.')) {
+                localStorage.clear();
+                contacts = [];
+                contactSubheadings = ['General'];
+                collapsedSubheadings = {};
+                
+                saveAllData();
+                renderContacts();
+            }
+        }
+
+        function saveAllData() {
+            localStorage.setItem('contacts', JSON.stringify(contacts));
+            localStorage.setItem('contactSubheadings', JSON.stringify(contactSubheadings));
+            localStorage.setItem('collapsedSubheadings', JSON.stringify(collapsedSubheadings));
+        }
+
+        // Subheading functions
+        function renderSubheadings(type) {
+            const listContainer = document.getElementById('contactsList');
+            listContainer.innerHTML = '';
+            
+            contactSubheadings.forEach((subheading, index) => {
+                renderItemsForSubheading(type, subheading, listContainer, index);
+            });
+        }
+
+        function renderItemsForSubheading(type, subheading, container, index) {
+            let items = showFlaggedOnly ? 
+                contacts.filter(c => c.subheading === subheading && c.flagged) :
+                contacts.filter(c => c.subheading === subheading);
+            
+            if (items.length === 0) return;
+            
+            const isCollapsed = collapsedSubheadings[`${type}-${subheading}`] || false;
+            
+            const subheadingElement = document.createElement('div');
+            subheadingElement.className = 'subheading';
+            subheadingElement.onclick = (e) => {
+                if (e.target.closest('.subheading-controls')) return;
+                
+                const key = `${type}-${subheading}`;
+                collapsedSubheadings[key] = !collapsedSubheadings[key];
+                localStorage.setItem('collapsedSubheadings', JSON.stringify(collapsedSubheadings));
+                
+                const content = subheadingElement.nextElementSibling;
+                content.classList.toggle('collapsed');
+            };
+            
+            const input = document.createElement('input');
+            input.className = 'subheading-input';
+            input.value = subheading;
+            input.placeholder = 'Subheading name';
+            input.onchange = () => updateSubheading(type, index, input.value);
+            
+            const controls = document.createElement('div');
+            controls.className = 'subheading-controls';
+            
+            const upBtn = document.createElement('button');
+            upBtn.innerHTML = '↑';
+            upBtn.style.padding = '2px 5px';
+            upBtn.onclick = (e) => {
+                e.stopPropagation();
+                moveSubheading(type, index, 'up');
+            };
+            upBtn.disabled = index === 0;
+            
+            const downBtn = document.createElement('button');
+            downBtn.innerHTML = '↓';
+            downBtn.style.padding = '2px 5px';
+            downBtn.onclick = (e) => {
+                e.stopPropagation();
+                moveSubheading(type, index, 'down');
+            };
+            downBtn.disabled = index === contactSubheadings.length - 1;
+            
+            const removeBtn = document.createElement('button');
+            removeBtn.innerHTML = '×';
+            removeBtn.style.padding = '2px 5px';
+            removeBtn.style.backgroundColor = '#dc3545';
+            removeBtn.onclick = (e) => {
+                e.stopPropagation();
+                removeSubheading(type, index);
+            };
+            removeBtn.disabled = contactSubheadings.length <= 1;
+            
+            controls.appendChild(upBtn);
+            controls.appendChild(downBtn);
+            controls.appendChild(removeBtn);
+            
+            subheadingElement.appendChild(input);
+            subheadingElement.appendChild(controls);
+            
+            const contentContainer = document.createElement('div');
+            contentContainer.className = `collapsible-content ${isCollapsed ? 'collapsed' : ''}`;
+            
+            container.appendChild(subheadingElement);
+            container.appendChild(contentContainer);
+            
+            items.forEach(item => {
+                const element = createContactElement(item);
+                contentContainer.appendChild(element);
+            });
+        }
+
+        function moveSubheading(type, index, direction) {
+            if (direction === 'up' && index > 0) {
+                [contactSubheadings[index], contactSubheadings[index - 1]] = [contactSubheadings[index - 1], contactSubheadings[index]];
+            } else if (direction === 'down' && index < contactSubheadings.length - 1) {
+                [contactSubheadings[index], contactSubheadings[index + 1]] = [contactSubheadings[index + 1], contactSubheadings[index]];
+            }
+            
+            saveSubheadings(type);
+            renderSubheadings(type);
+        }
+
+        function updateSubheading(type, index, value) {
+            const oldValue = contactSubheadings[index];
+            contactSubheadings[index] = value;
+            
+            contacts.forEach(contact => {
+                if (contact.subheading === oldValue) {
+                    contact.subheading = value;
+                }
+            });
+            saveContacts();
+            
+            saveSubheadings(type);
+            renderSubheadings(type);
+        }
+
+        function addSubheading(type) {
+            const inputId = `new${type.charAt(0).toUpperCase() + type.slice(1)}Subheading`;
+            const newSubheading = document.getElementById(inputId).value.trim();
+            
+            if (!newSubheading) return;
+            
+            if (!contactSubheadings.includes(newSubheading)) {
+                contactSubheadings.push(newSubheading);
+                document.getElementById(inputId).value = '';
+                saveSubheadings(type);
+                renderSubheadings(type);
+            }
+        }
+
+        function removeSubheading(type, index) {
+            if (contactSubheadings.length <= 1) return;
+            
+            if (!confirm(`Are you sure you want to delete the "${contactSubheadings[index]}" subheading? All items in this subheading will be moved to "${contactSubheadings[0]}"`)) {
+                return;
+            }
+            
+            const subheadingToRemove = contactSubheadings[index];
+            contacts.forEach(contact => {
+                if (contact.subheading === subheadingToRemove) {
+                    contact.subheading = contactSubheadings[0];
+                }
+            });
+            saveContacts();
+            
+            const key = `${type}-${subheadingToRemove}`;
+            if (collapsedSubheadings[key]) {
+                delete collapsedSubheadings[key];
+            }
+            
+            contactSubheadings.splice(index, 1);
+            saveSubheadings(type);
+            renderSubheadings(type);
+        }
+
+        function saveSubheadings(type) {
+            localStorage.setItem('contactSubheadings', JSON.stringify(contactSubheadings));
+        }
+
+        // Contact Functions
+        function addContact() {
+            const contact = {
+                id: Date.now(),
+                name: document.getElementById('contactName').value.trim(),
+                jobTitle: document.getElementById('contactJobTitle').value.trim(),
+                email: document.getElementById('contactEmail').value.trim(),
+                phone: document.getElementById('contactPhone').value.trim(),
+                notes: quillEditor.root.innerHTML,
+                flagged: false,
+                waitingOn: document.getElementById('contactWaitingOn').value.trim(),
+                subheading: contactSubheadings[0]
+            };
+
+            if (!contact.name) return;
+
+            contacts.push(contact);
+            saveContacts();
+            renderContacts();
+            clearContactForm();
+        }
+
+        function renderContacts(filteredContacts = contacts) {
+            renderSubheadings('contact');
+        }
+
+        function createContactElement(contact) {
+            const contactElement = document.createElement('div');
+            contactElement.className = 'contact-item';
+            contactElement.setAttribute('data-id', contact.id);
+            
+            const subheadingOptions = contactSubheadings.map(sh => 
+                `<option value="${sh}" ${contact.subheading === sh ? 'selected' : ''}>${sh}</option>`
+            ).join('');
+
+            const editorId = `quill-editor-${contact.id}`;
+            
+            contactElement.innerHTML = `
+                <i class="fas fa-flag contact-flag ${contact.flagged ? 'active' : ''}" 
+                   onclick="toggleContactFlag(${contact.id})"></i>
+                <div class="contact-header">
+                    <span class="task-title" contenteditable="true" 
+                          oninput="updateContactField(${contact.id}, 'name', this.innerText)">
+                        ${contact.name}
+                    </span>
+                    <div class="contact-details-row">
+                        <div>
+                            <span>Title:</span>
+                            <span class="editable" contenteditable="true" 
+                                  oninput="updateContactField(${contact.id}, 'jobTitle', this.innerText)">
+                                ${contact.jobTitle || 'Not specified'}
+                            </span>
+                        </div>
+                        <div>
+                            <span>Email:</span>
+                            <span class="editable" contenteditable="true" 
+                                  oninput="updateContactField(${contact.id}, 'email', this.innerText)">
+                                ${contact.email || 'Not specified'}
+                            </span>
+                        </div>
+                        <div>
+                            <span>Phone:</span>
+                            <span class="editable" contenteditable="true" 
+                                  oninput="updateContactField(${contact.id}, 'phone', this.innerText)">
+                                ${contact.phone || 'Not specified'}
+                            </span>
+                        </div>
+                    </div>
+                    <textarea class="waiting-on-input" placeholder="Waiting on..." 
+                           oninput="updateContactField(${contact.id}, 'waitingOn', this.value)">${contact.waitingOn || ''}</textarea>
+                    <div class="contact-controls">
+                        <button class="delete-btn" onclick="confirmDelete('contact', ${contact.id})">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="contact-subheading-selector">
+                    <select onchange="updateContactField(${contact.id}, 'subheading', this.value)">
+                        ${subheadingOptions}
+                    </select>
+                </div>
+                <div class="notes-header" onclick="toggleNotes(this)">
+                    Notes
+                </div>
+                <div class="notes-content">
+                    <div id="${editorId}"></div>
+                </div>
+                <div class="contact-move-buttons">
+                    <button onclick="moveContact(${contact.id}, 'up')">↑</button>
+                    <button onclick="moveContact(${contact.id}, 'down')">↓</button>
+                </div>
+            `;
+            
+            setTimeout(() => {
+                const editor = new Quill(`#${editorId}`, {
+                    modules: {
+                        toolbar: [
+                            ['bold', 'italic', 'underline', 'strike'],
+                            ['blockquote', 'code-block'],
+                            [{ 'header': 1 }, { 'header': 2 }],
+                            [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                            [{ 'script': 'sub'}, { 'script': 'super' }],
+                            [{ 'indent': '-1'}, { 'indent': '+1' }],
+                            [{ 'direction': 'rtl' }],
+                            [{ 'size': ['small', false, 'large', 'huge'] }],
+                            [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
+                            [{ 'color': [] }, { 'background': [] }],
+                            [{ 'font': [] }],
+                            [{ 'align': [] }],
+                            ['clean'],
+                            ['link', 'image']
+                        ]
+                    },
+                    theme: 'snow'
+                });
+                
+                editor.clipboard.dangerouslyPasteHTML(contact.notes || '');
+                
+                editor.on('text-change', function() {
+                    updateContactField(contact.id, 'notes', editor.root.innerHTML);
+                    
+                    // Auto-grow functionality for this editor
+                    const editorContainer = document.querySelector(`#${editorId} .ql-editor`);
+                    editorContainer.style.height = 'auto';
+                    editorContainer.style.height = editorContainer.scrollHeight + 'px';
+                });
+
+                // Set initial height
+                const editorContainer = document.querySelector(`#${editorId} .ql-editor`);
+                editorContainer.style.height = 'auto';
+                editorContainer.style.height = editorContainer.scrollHeight + 'px';
+            }, 0);
+            
+            return contactElement;
+        }
+
+        function toggleContactFlag(id) {
+            const contact = contacts.find(c => c.id === id);
+            if (contact) {
+                contact.flagged = !contact.flagged;
+                saveContacts();
+                renderContacts();
+            }
+        }
+
+        function moveContact(id, direction) {
+            const index = contacts.findIndex(c => c.id === id);
+            if (direction === 'up' && index > 0) {
+                [contacts[index], contacts[index - 1]] = [contacts[index - 1], contacts[index]];
+            } else if (direction === 'down' && index < contacts.length - 1) {
+                [contacts[index], contacts[index + 1]] = [contacts[index + 1], contacts[index]];
+            }
+            saveContacts();
+            renderContacts();
+        }
+
+        // Common Functions
+        function confirmDelete(type, id) {
+            if (window.confirm(`Are you sure you want to delete this ${type}?`)) {
+                deleteContact(id);
+            }
+        }
+
+        function deleteContact(id) {
+            contacts = contacts.filter(c => c.id !== id);
+            saveContacts();
+            renderContacts();
+        }
+
+        function updateContactField(id, field, value) {
+            const contact = contacts.find(c => c.id === id);
+            if (contact) {
+                contact[field] = value;
+                saveContacts();
+                if (field === 'subheading') {
+                    renderContacts();
+                }
+            }
+        }
+
+        function toggleNotes(header) {
+            const content = header.nextElementSibling;
+            content.classList.toggle('expanded');
+        }
+
+        function searchContacts() {
+            const searchTerm = document.getElementById('contactSearch').value.toLowerCase();
+            const filtered = showFlaggedOnly ? 
+                contacts.filter(c => c.flagged && Object.values(c).some(val => String(val).toLowerCase().includes(searchTerm))) :
+                contacts.filter(c => Object.values(c).some(val => String(val).toLowerCase().includes(searchTerm)));
+            
+            const contactsList = document.getElementById('contactsList');
+            contactsList.innerHTML = '';
+            
+            const grouped = {};
+            filtered.forEach(contact => {
+                if (!grouped[contact.subheading]) {
+                    grouped[contact.subheading] = [];
+                }
+                grouped[contact.subheading].push(contact);
+            });
+            
+            for (const [subheading, items] of Object.entries(grouped)) {
+                const subheadingElement = document.createElement('div');
+                subheadingElement.className = 'subheading';
+                subheadingElement.textContent = subheading;
+                contactsList.appendChild(subheadingElement);
+                
+                items.forEach(contact => {
+                    const contactElement = createContactElement(contact);
+                    contactsList.appendChild(contactElement);
+                });
+            }
+        }
+
+        // Form Clearing
+        function clearContactForm() {
+            document.getElementById('contactName').value = '';
+            document.getElementById('contactJobTitle').value = '';
+            document.getElementById('contactEmail').value = '';
+            document.getElementById('contactPhone').value = '';
+            quillEditor.root.innerHTML = '';
+            document.getElementById('contactWaitingOn').value = '';
+        }
+
+        // Storage
+        function saveContacts() { localStorage.setItem('contacts', JSON.stringify(contacts)); }
+
+        // Initialization
+        window.onload = () => {
+            renderContacts();
+            
+            document.querySelectorAll('.input-section').forEach(section => {
+                section.classList.add('collapsed');
+            });
+        };
+    </script>
+</body>
+</html>
