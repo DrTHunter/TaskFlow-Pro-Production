@@ -15,39 +15,40 @@
 
         body {
             background-color: #f5f7fa;
-            min-height: 100vh;
-            overflow-x: hidden;
+            height: 100vh;
+            overflow: hidden;
         }
 
         .main-content {
             display: flex;
             flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
             background-color: white;
-            min-height: 100vh;
         }
 
         .content-header {
             padding: 15px 20px;
-            background-color: #2a3647;
-            color: white;
+            background-color: #f8f9fa;
+            border-bottom: 1px solid #e0e0e0;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            flex-shrink: 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
         }
 
         .content-title {
-            font-size: 20px;
+            font-size: 18px;
             font-weight: 600;
+            color: #333;
         }
 
         .tab-content {
-            display: flex;
-            flex-direction: column;
+            padding: 20px;
+            overflow-y: auto;
             flex: 1;
         }
 
-        /* Task Management Styles */
         .input-section {
             display: flex;
             flex-wrap: wrap;
@@ -57,7 +58,6 @@
             overflow: hidden;
             border-bottom: 1px solid #ddd;
             padding-bottom: 15px;
-            margin: 15px;
         }
 
         .input-section.collapsed {
@@ -135,7 +135,7 @@
             background-color: #f8f9fa;
             border-radius: 5px;
             padding: 10px;
-            margin: 0 15px 15px 15px;
+            margin: 0 0 15px 0;
         }
 
         .task-item {
@@ -262,7 +262,6 @@
 
         .search-container {
             display: flex;
-            margin: 15px;
             align-items: center;
         }
 
@@ -270,6 +269,10 @@
             flex-grow: 1;
             max-width: 400px;
             margin-left: 10px;
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 13px;
         }
 
         .notes-container {
@@ -388,7 +391,7 @@
         .new-subheading-bar {
             display: flex;
             gap: 5px;
-            margin: 10px 15px;
+            margin: 10px 0;
             height: 30px;
             background-color: #e0e0e0;
             padding: 5px 10px;
@@ -454,20 +457,17 @@
             border-color: #000;
         }
 
-        /* Subheading controls spacing */
         .subheading-controls {
             gap: 8px !important;
             margin-left: 15px !important;
         }
 
-        /* Add button sizing */
         .new-subheading-bar button {
             height: 30px !important;
             padding: 0 10px !important;
             line-height: 30px !important;
         }
 
-        /* Completed tasks section styles */
         .completed-section {
             margin-top: 20px;
         }
@@ -504,16 +504,19 @@
         .controls-bar {
             display: flex;
             align-items: center;
-            margin: 15px;
+            margin: 0 0 15px 0;
             gap: 10px;
         }
 
-        /* Remove all overflow: hidden and overflow-y: auto properties */
         body, .main-content, .tab-content, .task-list {
             overflow: visible !important;
         }
 
         @media (max-width: 768px) {
+            .main-content {
+                height: auto;
+            }
+            
             .input-section {
                 flex-direction: column;
             }
@@ -561,6 +564,18 @@
             .controls-bar {
                 flex-wrap: wrap;
             }
+            
+            .content-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+            
+            .search-bar {
+                max-width: 100%;
+                margin-left: 0;
+                width: 100%;
+            }
         }
     </style>
 </head>
@@ -568,19 +583,16 @@
     <div class="main-content">
         <div class="content-header">
             <div class="content-title">Task Management System</div>
+            <div class="search-container">
+                <input type="text" class="search-bar" id="taskSearch" placeholder="Search tasks..." oninput="searchTasks()">
+            </div>
         </div>
 
-        <!-- Tasks Tab -->
         <div id="tasks" class="tab-content active">
-            <div class="controls-bar">
+            <div style="display: flex; align-items: center; margin-bottom: 15px;">
                 <button class="new-item-btn" onclick="toggleInputs('tasks')">
                     <i class="fas fa-plus"></i> New Task
                 </button>
-                
-                <div class="search-container">
-                    <i class="fas fa-search"></i>
-                    <input type="text" class="search-bar" id="taskSearch" placeholder="Search tasks..." oninput="searchTasks()">
-                </div>
                 
                 <button class="settings-button" onclick="toggleSettingsMenu()">
                     <i class="fas fa-cog"></i> Settings
@@ -653,8 +665,6 @@
     </div>
 
     <script>
-        // Task Management Scripts
-        // Data Management
         let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
         let selectedPriority = 1;
         let selectedColor = '#1a73e8';
@@ -662,19 +672,16 @@
         let collapsedSubheadings = JSON.parse(localStorage.getItem('collapsedSubheadings')) || {};
         let completedTasksCollapsed = JSON.parse(localStorage.getItem('completedTasksCollapsed')) || false;
 
-        // Auto-resize textarea function
         function autoResizeTextarea(textarea) {
             textarea.style.height = 'auto';
             textarea.style.height = (textarea.scrollHeight) + 'px';
         }
 
-        // Auto-resize notes textarea
         function autoResizeNotes(textarea) {
             textarea.style.height = 'auto';
             textarea.style.height = textarea.scrollHeight + 'px';
         }
 
-        // Initialize auto-resize for taskNotes
         function initAutoResize() {
             const notesTextarea = document.getElementById('taskNotes');
             if (notesTextarea) {
@@ -685,13 +692,11 @@
             }
         }
 
-        // Toggle settings menu
         function toggleSettingsMenu() {
             const menu = document.getElementById('settingsMenu');
             menu.classList.toggle('active');
         }
 
-        // Toggle input sections
         function toggleInputs(tab) {
             const inputSection = document.querySelector(`#${tab} .input-section`);
             const toggleBtn = document.querySelector(`#${tab} .new-item-btn`);
@@ -702,7 +707,6 @@
                 toggleBtn.innerHTML = '<i class="fas fa-plus"></i> New Task';
             } else {
                 toggleBtn.innerHTML = 'Hide Form';
-                // Ensure the notes textarea is properly sized when shown
                 const notesTextarea = document.getElementById('taskNotes');
                 if (notesTextarea) {
                     autoResizeNotes(notesTextarea);
@@ -710,7 +714,6 @@
             }
         }
 
-        // Toggle completed tasks visibility
         function toggleCompletedTasks() {
             const doneList = document.querySelector('.completed-content');
             const header = document.querySelector('.completed-header');
@@ -722,7 +725,6 @@
             localStorage.setItem('completedTasksCollapsed', JSON.stringify(completedTasksCollapsed));
         }
 
-        // Reset all data
         function resetAllData() {
             if (confirm('Are you sure you want to delete ALL data? This cannot be undone.')) {
                 localStorage.clear();
@@ -743,11 +745,9 @@
             localStorage.setItem('completedTasksCollapsed', JSON.stringify(completedTasksCollapsed));
         }
 
-        // Subheading functions
         function renderSubheadings(type) {
             const listContainer = document.getElementById('tasksList');
             
-            // Clear the containers
             listContainer.innerHTML = `
                 <h3 class="current-header">Current Tasks</h3>
                 <div id="currentList"></div>
@@ -760,14 +760,12 @@
                 </div>
             `;
             
-            // Set initial collapsed state for completed tasks
             if (completedTasksCollapsed) {
                 document.querySelector('.completed-content').classList.add('collapsed');
                 document.querySelector('.completed-header').classList.add('collapsed');
             }
             
             taskSubheadings.forEach((subheading, index) => {
-                // Render items for this subheading in the list container
                 renderItemsForSubheading(type, subheading, listContainer, index);
             });
         }
@@ -777,14 +775,11 @@
             
             if (items.length === 0) return;
             
-            // Check if this subheading is collapsed
             const isCollapsed = collapsedSubheadings[`${type}-${subheading}`] || false;
             
-            // Add subheading label
             const subheadingElement = document.createElement('div');
             subheadingElement.className = 'subheading';
             subheadingElement.onclick = (e) => {
-                // Don't toggle if clicking on controls
                 if (e.target.closest('.subheading-controls')) return;
                 
                 const key = `${type}-${subheading}`;
@@ -839,11 +834,9 @@
             subheadingElement.appendChild(input);
             subheadingElement.appendChild(controls);
             
-            // Create content container
             const contentContainer = document.createElement('div');
             contentContainer.className = `collapsible-content ${isCollapsed ? 'collapsed' : ''}`;
             
-            // For tasks, we need to add to either current or completed list
             const currentItems = items.filter(t => !t.completed);
             const completedItems = items.filter(t => t.completed);
             
@@ -890,18 +883,14 @@
 
         function moveSubheading(type, index, direction) {
             if (direction === 'up' && index > 0) {
-                // Swap the subheadings
                 [taskSubheadings[index], taskSubheadings[index - 1]] = [taskSubheadings[index - 1], taskSubheadings[index]];
             } else if (direction === 'down' && index < taskSubheadings.length - 1) {
-                // Swap the subheadings
                 [taskSubheadings[index], taskSubheadings[index + 1]] = [taskSubheadings[index + 1], taskSubheadings[index]];
             }
             
-            // Save both the subheadings and tasks
             saveSubheadings(type);
             saveTasks();
             
-            // Re-render everything
             renderSubheadings(type);
         }
 
@@ -909,7 +898,6 @@
             const oldValue = taskSubheadings[index];
             taskSubheadings[index] = value;
             
-            // Update all items with the old subheading
             tasks.forEach(task => {
                 if (task.subheading === oldValue) {
                     task.subheading = value;
@@ -942,7 +930,6 @@
                 return;
             }
             
-            // Move items from this subheading to the first subheading
             const subheadingToRemove = taskSubheadings[index];
             tasks.forEach(task => {
                 if (task.subheading === subheadingToRemove) {
@@ -951,7 +938,6 @@
             });
             saveTasks();
             
-            // Remove from collapsed state tracking
             const key = `${type}-${subheadingToRemove}`;
             if (collapsedSubheadings[key]) {
                 delete collapsedSubheadings[key];
@@ -966,7 +952,6 @@
             localStorage.setItem('taskSubheadings', JSON.stringify(taskSubheadings));
         }
 
-        // Star Rating System
         function setupStarRating() {
             const stars = document.querySelectorAll('#priorityStars i');
             stars.forEach(star => {
@@ -974,7 +959,6 @@
                     const value = parseInt(star.getAttribute('data-value'));
                     selectedPriority = value;
                     
-                    // Update stars display
                     stars.forEach((s, index) => {
                         if (index < value) {
                             s.classList.add('active');
@@ -985,7 +969,6 @@
                 });
             });
             
-            // Set up color picker
             const colorOptions = document.querySelectorAll('#taskColorPicker .color-option');
             colorOptions.forEach(option => {
                 option.addEventListener('click', () => {
@@ -996,7 +979,6 @@
             });
         }
 
-        // Task Functions
         function addTask() {
             const priorityText = 
                 selectedPriority >= 4 ? 'high' : 
@@ -1034,19 +1016,17 @@
             taskElement.className = `task-item priority-${task.priority} ${task.completed ? 'completed' : ''}`;
             taskElement.setAttribute('data-id', task.id);
             
-            // Calculate timeline progress if dates exist
             let timelineHTML = '';
             if (task.start && task.due) {
                 const progress = calculateTimelineProgress(task.start, task.due);
                 
-                // Determine color based on progress
                 let progressColor;
                 if (progress.percentage < 33) {
-                    progressColor = '#28a745'; // Green
+                    progressColor = '#28a745';
                 } else if (progress.percentage < 66) {
-                    progressColor = '#ffc107'; // Yellow
+                    progressColor = '#ffc107';
                 } else {
-                    progressColor = '#dc3545'; // Red
+                    progressColor = '#dc3545';
                 }
                 
                 timelineHTML = `
@@ -1061,19 +1041,16 @@
                 `;
             }
 
-            // Create star rating for priority
             let starsHTML = '';
             for (let i = 1; i <= 5; i++) {
                 starsHTML += `<i class="fas fa-star ${i <= task.priorityValue ? 'active' : ''}" 
                              onclick="updateTaskPriority(${task.id}, ${i})"></i>`;
             }
 
-            // Subheading selector
             const subheadingOptions = taskSubheadings.map(sh => 
                 `<option value="${sh}" ${task.subheading === sh ? 'selected' : ''}>${sh}</option>`
             ).join('');
 
-            // Color picker for the task
             const colors = ['#1a73e8', '#dc3545', '#28a745', '#ffc107', '#6f42c1'];
             const colorOptions = colors.map(color => 
                 `<div class="color-option ${task.color === color ? 'selected' : ''}" 
@@ -1144,11 +1121,9 @@
                 </div>
             `;
             
-            // Initialize auto-resize for the current step textarea
             const currentStepTextarea = taskElement.querySelector('.current-step');
             autoResizeTextarea(currentStepTextarea);
             
-            // Initialize auto-resize for the notes textarea if expanded
             const notesHeader = taskElement.querySelector('.notes-header');
             const notesContent = taskElement.querySelector('.notes-content');
             const notesTextarea = taskElement.querySelector('.notes-content textarea');
@@ -1158,7 +1133,6 @@
                     autoResizeNotes(this);
                 });
                 
-                // If notes are expanded, resize them initially
                 if (notesContent.classList.contains('expanded')) {
                     autoResizeNotes(notesTextarea);
                 }
@@ -1172,7 +1146,6 @@
             const start = new Date(startDate);
             const end = new Date(dueDate);
             
-            // Ensure dates are valid
             if (isNaN(start.getTime()) || isNaN(end.getTime())) {
                 return { percentage: 0, status: 'invalid' };
             }
@@ -1182,7 +1155,6 @@
             
             let percentage = (elapsed / total) * 100;
             
-            // Clamp between 0 and 100
             percentage = Math.max(0, Math.min(100, percentage));
             
             let status = 'on-track';
@@ -1240,7 +1212,6 @@
             renderTasks();
         }
 
-        // Common Functions
         function confirmDelete(type, id) {
             if (window.confirm(`Are you sure you want to delete this ${type}?`)) {
                 deleteTask(id);
@@ -1268,7 +1239,6 @@
             const content = header.nextElementSibling;
             content.classList.toggle('expanded');
 
-            // Automatically resize all textareas inside the expanded notes content
             const textareas = content.querySelectorAll('textarea');
             textareas.forEach(textarea => {
                 autoResizeNotes(textarea);
@@ -1297,13 +1267,11 @@
                 </div>
             `;
             
-            // Set initial collapsed state for completed tasks in search results
             if (completedTasksCollapsed) {
                 document.querySelector('.completed-content').classList.add('collapsed');
                 document.querySelector('.completed-header').classList.add('collapsed');
             }
             
-            // Group by subheading
             const currentGrouped = {};
             const completedGrouped = {};
             
@@ -1321,7 +1289,6 @@
                 }
             });
             
-            // Render current tasks
             for (const [subheading, items] of Object.entries(currentGrouped)) {
                 const subheadingElement = document.createElement('div');
                 subheadingElement.className = 'subheading';
@@ -1334,7 +1301,6 @@
                 });
             }
             
-            // Render completed tasks
             for (const [subheading, items] of Object.entries(completedGrouped)) {
                 const subheadingElement = document.createElement('div');
                 subheadingElement.className = 'subheading';
@@ -1348,16 +1314,13 @@
             }
         }
 
-        // Form Clearing
         function clearTaskForm() {
             document.getElementById('taskTitle').value = '';
             document.getElementById('taskStart').value = '';
             document.getElementById('taskDue').value = '';
             document.getElementById('taskNotes').value = '';
-            // Reset textarea height
             const notesTextarea = document.getElementById('taskNotes');
             notesTextarea.style.height = 'auto';
-            // Reset star rating
             selectedPriority = 1;
             const stars = document.querySelectorAll('#priorityStars i');
             stars.forEach((star, index) => {
@@ -1367,7 +1330,6 @@
                     star.classList.remove('active');
                 }
             });
-            // Reset color picker
             selectedColor = '#1a73e8';
             const colorOptions = document.querySelectorAll('#taskColorPicker .color-option');
             colorOptions.forEach((option, index) => {
@@ -1379,21 +1341,17 @@
             });
         }
 
-        // Storage
         function saveTasks() { localStorage.setItem('tasks', JSON.stringify(tasks)); }
 
-        // Initialization
         window.onload = () => {
             setupStarRating();
             renderTasks();
             initAutoResize();
             
-            // Collapse all input sections by default
             document.querySelectorAll('.input-section').forEach(section => {
                 section.classList.add('collapsed');
             });
             
-            // Load collapsed state for completed tasks
             if (completedTasksCollapsed) {
                 const doneList = document.querySelector('.completed-content');
                 const header = document.querySelector('.completed-header');
