@@ -172,14 +172,31 @@
             color: #333;
         }
 
-        .tab-content {
+        .iframe-container {
+            flex: 1;
+            display: none;
+            overflow: hidden;
+        }
+
+        .iframe-container.active {
+            display: block;
+        }
+
+        .iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            background-color: white;
+        }
+
+        .placeholder-container {
+            flex: 1;
             display: none;
             padding: 20px;
             overflow-y: auto;
-            flex: 1;
         }
 
-        .tab-content.active {
+        .placeholder-container.active {
             display: block;
         }
 
@@ -291,46 +308,69 @@
             <div class="content-title" id="contentTitle">Dashboard</div>
         </div>
 
-        <!-- Dashboard Tab -->
-        <div id="dashboard" class="tab-content active">
+        <!-- Dashboard Tab - Placeholder -->
+        <div id="dashboard" class="placeholder-container active">
             <h2>Dashboard Content</h2>
             <p>This would contain your dashboard information and metrics.</p>
+            <p>To load an iframe here, replace this div with:</p>
+            <pre>&lt;div id="dashboard" class="iframe-container"&gt;
+    &lt;iframe src="YOUR_DASHBOARD_URL" class="iframe"&gt;&lt;/iframe&gt;
+&lt;/div&gt;</pre>
         </div>
 
-        <!-- Tasks Tab -->
-        <div id="tasks" class="tab-content">
+        <!-- Tasks Tab - Placeholder -->
+        <div id="tasks" class="placeholder-container">
             <h2>Tasks</h2>
             <p>This would contain your task management system.</p>
+            <p>To load an iframe here, replace this div with:</p>
+            <pre>&lt;div id="tasks" class="iframe-container"&gt;
+    &lt;iframe src="YOUR_TASKS_URL" class="iframe"&gt;&lt;/iframe&gt;
+&lt;/div&gt;</pre>
         </div>
 
-        <!-- Notes Tab -->
-        <div id="notes" class="tab-content">
+        <!-- Notes Tab - Placeholder -->
+        <div id="notes" class="placeholder-container">
             <h2>Notes</h2>
             <p>This would contain your note-taking functionality.</p>
+            <p>To load an iframe here, replace this div with:</p>
+            <pre>&lt;div id="notes" class="iframe-container"&gt;
+    &lt;iframe src="YOUR_NOTES_URL" class="iframe"&gt;&lt;/iframe&gt;
+&lt;/div&gt;</pre>
         </div>
 
-        <!-- Contacts Tab -->
-        <div id="contacts" class="tab-content">
+        <!-- Contacts Tab - Placeholder -->
+        <div id="contacts" class="placeholder-container">
             <h2>Contacts</h2>
             <p>This would contain your contact management system.</p>
+            <p>To load an iframe here, replace this div with:</p>
+            <pre>&lt;div id="contacts" class="iframe-container"&gt;
+    &lt;iframe src="YOUR_CONTACTS_URL" class="iframe"&gt;&lt;/iframe&gt;
+&lt;/div&gt;</pre>
         </div>
 
-        <!-- Process Tab -->
-        <div id="process" class="tab-content">
-            <h2>Process</h2>
-            <p>This would contain your workflow and process management tools.</p>
+        <!-- Process Tab - Actual iframe -->
+        <div id="process" class="iframe-container">
+            <iframe src="https://drthunter.github.io/Tempo-Workplace_Management_Tool/process_tool" class="iframe"></iframe>
         </div>
 
-        <!-- Calendar Tab -->
-        <div id="calendar" class="tab-content">
-            <h2>Calendar Content</h2>
+        <!-- Calendar Tab - Placeholder -->
+        <div id="calendar" class="placeholder-container">
+            <h2>Calendar</h2>
             <p>This would contain your calendar view and scheduling tools.</p>
+            <p>To load an iframe here, replace this div with:</p>
+            <pre>&lt;div id="calendar" class="iframe-container"&gt;
+    &lt;iframe src="YOUR_CALENDAR_URL" class="iframe"&gt;&lt;/iframe&gt;
+&lt;/div&gt;</pre>
         </div>
 
-        <!-- Settings Tab -->
-        <div id="settings" class="tab-content">
+        <!-- Settings Tab - Placeholder -->
+        <div id="settings" class="placeholder-container">
             <h2>Settings</h2>
             <p>This would contain your application settings and configuration options.</p>
+            <p>To load an iframe here, replace this div with:</p>
+            <pre>&lt;div id="settings" class="iframe-container"&gt;
+    &lt;iframe src="YOUR_SETTINGS_URL" class="iframe"&gt;&lt;/iframe&gt;
+&lt;/div&gt;</pre>
         </div>
     </div>
 
@@ -344,9 +384,17 @@
         }
 
         function showTab(tabName) {
-            document.querySelectorAll('.tab-content').forEach(tab => {
-                tab.classList.remove('active');
+            // Hide all iframe containers
+            document.querySelectorAll('.iframe-container').forEach(container => {
+                container.classList.remove('active');
             });
+            
+            // Hide all placeholder containers
+            document.querySelectorAll('.placeholder-container').forEach(container => {
+                container.classList.remove('active');
+            });
+            
+            // Show the selected tab
             document.getElementById(tabName).classList.add('active');
             
             const titleMap = {
