@@ -157,25 +157,13 @@
             background-color: white;
         }
 
-        .content-header {
-            padding: 15px 20px;
-            background-color: #f8f9fa;
-            border-bottom: 1px solid #e0e0e0;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .content-title {
-            font-size: 18px;
-            font-weight: 600;
-            color: #333;
-        }
-
+        /* Content header removed completely */
+        
         .iframe-container {
             flex: 1;
             display: none;
             overflow: hidden;
+            height: 100vh; /* Full height */
         }
 
         .iframe-container.active {
@@ -194,6 +182,7 @@
             display: none;
             padding: 20px;
             overflow-y: auto;
+            height: 100vh; /* Full height */
         }
 
         .placeholder-container.active {
@@ -245,6 +234,10 @@
             
             .main-content {
                 height: auto;
+            }
+            
+            .iframe-container, .placeholder-container {
+                height: calc(100vh - 60px); /* Adjust for mobile header */
             }
         }
     </style>
@@ -304,9 +297,7 @@
     </div>
 
     <div class="main-content">
-        <div class="content-header">
-            <div class="content-title" id="contentTitle">Dashboard</div>
-        </div>
+        <!-- No header - content goes directly to the top -->
 
         <!-- Dashboard Tab - Placeholder -->
         <div id="dashboard" class="placeholder-container active">
@@ -391,17 +382,6 @@
             
             // Show the selected tab
             document.getElementById(tabName).classList.add('active');
-            
-            const titleMap = {
-                'dashboard': 'Dashboard',
-                'tasks': 'Tasks',
-                'notes': 'Notes',
-                'contacts': 'Contacts',
-                'process': 'Process',
-                'calendar': 'Calendar',
-                'settings': 'Settings'
-            };
-            document.getElementById('contentTitle').textContent = titleMap[tabName];
         }
 
         // Initialization
