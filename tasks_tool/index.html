@@ -1,0 +1,1677 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Management System</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f5f7fa;
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            width: 70px;
+            background-color: #2a3647;
+            color: white;
+            min-height: 100vh;
+            padding: 20px 0;
+            transition: all 0.3s ease;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+        }
+
+        .sidebar:hover {
+            width: 250px;
+            align-items: flex-start;
+            padding-left: 20px;
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+            margin-bottom: 40px;
+            width: 100%;
+            justify-content: center;
+        }
+
+        .sidebar:hover .logo-container {
+            justify-content: flex-start;
+            padding-left: 10px;
+        }
+
+        .logo {
+            width: 40px;
+            height: 40px;
+            background-color: #1a2533;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            font-weight: bold;
+            color: #fff;
+        }
+
+        .logo-text {
+            margin-left: 15px;
+            font-size: 18px;
+            font-weight: 600;
+            display: none;
+        }
+
+        .sidebar:hover .logo-text {
+            display: block;
+        }
+
+        .nav-menu {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .menu-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 15px;
+            margin-bottom: 5px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            width: calc(100% - 10px);
+            color: #d1d5db;
+        }
+
+        .menu-item:hover {
+            background-color: #1a2533;
+            color: white;
+        }
+
+        .menu-item.active {
+            background-color: #1a2533;
+            color: white;
+        }
+
+        .menu-icon {
+            font-size: 18px;
+            min-width: 30px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .menu-text {
+            margin-left: 10px;
+            font-size: 14px;
+            font-weight: 500;
+            display: none;
+            white-space: nowrap;
+        }
+
+        .sidebar:hover .menu-text {
+            display: block;
+        }
+
+        .menu-chevron {
+            margin-left: auto;
+            font-size: 12px;
+            transition: transform 0.3s;
+            display: none;
+        }
+
+        .sidebar:hover .menu-chevron {
+            display: block;
+        }
+
+        .menu-item.active .menu-chevron {
+            transform: rotate(180deg);
+        }
+
+        .divider {
+            height: 1px;
+            background-color: #3e4b5e;
+            margin: 20px 0;
+            width: 80%;
+        }
+
+        /* Main Content Styles */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background-color: white;
+        }
+
+        .content-header {
+            padding: 15px 20px;
+            background-color: #f8f9fa;
+            border-bottom: 1px solid #e0e0e0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .content-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .tab-content {
+            display: none;
+            padding: 0;
+            flex: 1;
+            overflow-y: visible;
+        }
+
+        .tab-content.active {
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Task Management Styles */
+        .input-section {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 15px;
+            transition: all 0.3s ease;
+            overflow: hidden;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 15px;
+            margin: 15px;
+        }
+
+        .input-section.collapsed {
+            max-height: 0;
+            margin-bottom: 0;
+            opacity: 0;
+            visibility: hidden;
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+
+        .wide-input-section {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .wide-input-section .input-group:first-child {
+            flex: 3;
+            min-width: 300px;
+        }
+
+        .wide-input-section .input-group:not(:first-child) {
+            flex: 1;
+            min-width: 150px;
+        }
+
+        .wide-input-section button {
+            margin-left: auto;
+            height: 36px;
+            align-self: center;
+        }
+
+        #taskTitle {
+            margin-top: 15px;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            min-width: 150px;
+        }
+
+        .input-group label {
+            font-size: 12px;
+            margin-bottom: 4px;
+            color: #555;
+        }
+
+        input, select, textarea {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 13px;
+            width: 100%;
+        }
+
+        button {
+            padding: 8px 15px;
+            background-color: #1a73e8;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: filter 0.3s;
+            font-size: 13px;
+            height: fit-content;
+        }
+
+        button:hover {
+            filter: brightness(0.9);
+        }
+
+        .task-list {
+            background-color: #f8f9fa;
+            border-radius: 5px;
+            padding: 10px;
+            margin: 15px;
+            flex: 1;
+        }
+
+        .task-item {
+            padding: 12px;
+            background-color: white;
+            margin-bottom: 8px;
+            border-radius: 4px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            position: relative;
+        }
+
+        .priority-high { border-left: 4px solid #dc3545; }
+        .priority-medium { border-left: 4px solid #ffc107; }
+        .priority-low { border-left: 4px solid #28a745; }
+
+        .completed {
+            opacity: 0.7;
+            background-color: #f8f9fa;
+        }
+
+        .task-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .task-title {
+            font-weight: bold;
+            flex-grow: 0;
+            min-width: 200px;
+            word-wrap: break-word;
+            min-height: 20px;
+            padding: 5px;
+            border: none;
+            border-radius: 4px;
+            width: 65%;
+        }
+
+        .complete-checkbox {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            white-space: nowrap;
+            margin-left: 10px;
+            flex-shrink: 1;
+            min-width: 0;
+            overflow: hidden;
+        }
+
+        .current-step {
+            margin-top: 5px;
+            width: 65%;
+            min-height: 40px;
+            max-height: 200px;
+            padding: 5px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            resize: none;
+            font-size: 13px;
+            line-height: 1.4;
+            overflow-y: hidden;
+            word-wrap: break-word;
+        }
+
+        .task-meta {
+            display: flex;
+            gap: 10px;
+            margin-top: 8px;
+            font-size: 0.85em;
+            color: #666;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .task-meta-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .notes-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin: 10px 0;
+            cursor: pointer;
+            color: #1a73e8;
+            font-size: 0.9em;
+        }
+
+        .notes-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+        }
+
+        .notes-content.expanded {
+            max-height: 1000px;
+        }
+
+        .task-controls {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .delete-btn {
+            background-color: #dc3545;
+            padding: 6px 12px;
+        }
+
+        .move-buttons {
+            position: absolute;
+            top: 50px;
+            right: 12px;
+            display: flex;
+            gap: 5px;
+        }
+
+        .search-container {
+            display: flex;
+            margin: 15px;
+            align-items: center;
+        }
+
+        .search-bar {
+            flex-grow: 1;
+            max-width: 400px;
+            margin-left: 10px;
+        }
+
+        .notes-container {
+            width: 100%;
+            margin-top: 15px;
+        }
+        
+        .large-notes {
+            width: 100%;
+            min-height: 150px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            resize: none;
+            font-size: 14px;
+            line-height: 1.4;
+            overflow-y: hidden;
+            word-wrap: break-word;
+        }
+
+        .star-rating {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .star-rating i {
+            color: #ddd;
+            cursor: pointer;
+            font-size: 18px;
+            transition: color 0.2s;
+        }
+
+        .star-rating i.active {
+            color: #ffc107;
+        }
+
+        .timeline-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .timeline-bar {
+            height: 6px;
+            width: 100px;
+            background-color: #e0e0e0;
+            border-radius: 3px;
+            overflow: hidden;
+            margin-bottom: 5px;
+        }
+
+        .timeline-progress {
+            height: 100%;
+            border-radius: 3px;
+            transition: width 0.5s ease, background-color 0.5s ease;
+        }
+
+        .timeline-dates {
+            font-size: 11px;
+            color: #666;
+        }
+
+        .subheading {
+            background-color: #e0e0e0;
+            padding: 5px 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            position: relative;
+            cursor: pointer;
+            height: 30px;
+        }
+
+        .subheading-input {
+            border: none;
+            background: transparent;
+            font-weight: bold;
+            flex: 1;
+            padding: 2px 5px;
+            height: 20px;
+        }
+
+        .subheading-input:focus {
+            outline: none;
+            background: white;
+        }
+
+        .subheading-controls {
+            display: flex;
+            gap: 5px;
+            margin-left: 10px;
+        }
+
+        .subheading-selector {
+            position: absolute;
+            right: 50px;
+            top: 12px;
+        }
+
+        .new-item-btn {
+            min-width: 120px;
+            margin-right: 10px;
+            padding: 8px 15px;
+            font-size: 13px;
+            background-color: #28a745;
+        }
+
+        .reset-btn {
+            background-color: #dc3545;
+            margin-top: 15px;
+        }
+
+        .new-subheading-bar {
+            display: flex;
+            gap: 5px;
+            margin: 10px 15px;
+            height: 30px;
+            background-color: #e0e0e0;
+            padding: 5px 10px;
+            border-radius: 4px;
+            align-items: center;
+        }
+
+        .new-subheading-input {
+            flex: 1;
+            border: none;
+            background: transparent;
+            padding: 2px 5px;
+            height: 20px;
+        }
+
+        .new-subheading-input:focus {
+            outline: none;
+            background: white;
+        }
+
+        .collapsible-content {
+            max-height: 1000px;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+
+        .collapsible-content.collapsed {
+            max-height: 0;
+        }
+
+        .settings-menu {
+            display: none;
+            position: absolute;
+            right: 10px;
+            top: 50px;
+            background-color: white;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            z-index: 100;
+        }
+
+        .settings-menu.active {
+            display: block;
+        }
+
+        .color-picker {
+            display: flex;
+            gap: 5px;
+            margin-top: 5px;
+        }
+
+        .color-option {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 2px solid transparent;
+        }
+
+        .color-option.selected {
+            border-color: #000;
+        }
+
+        /* Subheading controls spacing */
+        .subheading-controls {
+            gap: 8px !important;
+            margin-left: 15px !important;
+        }
+
+        /* Add button sizing */
+        .new-subheading-bar button {
+            height: 30px !important;
+            padding: 0 10px !important;
+            line-height: 30px !important;
+        }
+
+        /* Completed tasks section styles */
+        .completed-section {
+            margin-top: 20px;
+        }
+
+        .completed-header {
+            background-color: #e0e0e0;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .completed-header i {
+            transition: transform 0.3s;
+        }
+
+        .completed-header.collapsed i {
+            transform: rotate(-90deg);
+        }
+
+        .completed-content {
+            max-height: 1000px;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+
+        .completed-content.collapsed {
+            max-height: 0;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                flex-direction: column;
+                height: auto;
+            }
+            
+            .sidebar {
+                width: 100%;
+                height: auto;
+                flex-direction: row;
+                padding: 10px;
+                align-items: center;
+            }
+            
+            .sidebar:hover {
+                width: 100%;
+                height: auto;
+            }
+            
+            .logo-container {
+                margin-bottom: 0;
+                margin-right: 20px;
+            }
+            
+            .nav-menu {
+                flex-direction: row;
+                overflow-x: auto;
+            }
+            
+            .menu-item {
+                margin-bottom: 0;
+                margin-right: 5px;
+                padding: 10px;
+            }
+            
+            .menu-text {
+                display: none !important;
+            }
+            
+            .divider {
+                display: none;
+            }
+            
+            .main-content {
+                height: auto;
+            }
+
+            /* Task management mobile styles */
+            .input-section {
+                flex-direction: column;
+            }
+            
+            .wide-input-section .input-group:first-child,
+            .wide-input-section .input-group:not(:first-child) {
+                flex: 1 0 100%;
+                min-width: 100%;
+            }
+            
+            .wide-input-section button {
+                margin-left: 0;
+                width: 100%;
+            }
+            
+            .task-meta {
+                flex-direction: column;
+                gap: 5px;
+            }
+            
+            button {
+                padding: 6px 12px;
+            }
+
+            .subheading-selector {
+                position: static;
+                margin-top: 5px;
+                width: 100%;
+            }
+            
+            .task-title {
+                width: 100% !important;
+            }
+            
+            .complete-checkbox {
+                margin-left: 0;
+                margin-top: 10px;
+                width: 100%;
+            }
+            
+            .current-step {
+                width: 100% !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="logo-container">
+            <div class="logo">S</div>
+            <div class="logo-text">System Manager</div>
+        </div>
+        
+        <div class="nav-menu">
+            <div class="menu-item active" onclick="setActive(this); showTab('dashboard')">
+                <div class="menu-icon"><i class="fas fa-home"></i></div>
+                <div class="menu-text">Dashboard</div>
+                <div class="menu-chevron"><i class="fas fa-chevron-down"></i></div>
+            </div>
+            
+            <div class="menu-item" onclick="setActive(this); showTab('tasks')">
+                <div class="menu-icon"><i class="fas fa-tasks"></i></div>
+                <div class="menu-text">Tasks</div>
+                <div class="menu-chevron"><i class="fas fa-chevron-down"></i></div>
+            </div>
+            
+            <div class="menu-item" onclick="setActive(this); showTab('notes')">
+                <div class="menu-icon"><i class="fas fa-sticky-note"></i></div>
+                <div class="menu-text">Notes</div>
+                <div class="menu-chevron"><i class="fas fa-chevron-down"></i></div>
+            </div>
+            
+            <div class="menu-item" onclick="setActive(this); showTab('contacts')">
+                <div class="menu-icon"><i class="fas fa-address-book"></i></div>
+                <div class="menu-text">Contacts</div>
+                <div class="menu-chevron"><i class="fas fa-chevron-down"></i></div>
+            </div>
+            
+            <div class="menu-item" onclick="setActive(this); showTab('process')">
+                <div class="menu-icon"><i class="fas fa-project-diagram"></i></div>
+                <div class="menu-text">Process</div>
+                <div class="menu-chevron"><i class="fas fa-chevron-down"></i></div>
+            </div>
+            
+            <div class="menu-item" onclick="setActive(this); showTab('calendar')">
+                <div class="menu-icon"><i class="fas fa-calendar-alt"></i></div>
+                <div class="menu-text">Calendar</div>
+                <div class="menu-chevron"><i class="fas fa-chevron-down"></i></div>
+            </div>
+            
+            <div class="divider"></div>
+            
+            <div class="menu-item" onclick="setActive(this); showTab('settings')">
+                <div class="menu-icon"><i class="fas fa-cog"></i></div>
+                <div class="menu-text">Settings</div>
+                <div class="menu-chevron"><i class="fas fa-chevron-down"></i></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="content-header">
+            <div class="content-title" id="contentTitle">Dashboard</div>
+        </div>
+
+        <!-- Dashboard Tab -->
+        <div id="dashboard" class="tab-content active">
+            <h2>Dashboard Content</h2>
+            <p>This would contain your dashboard information and metrics.</p>
+        </div>
+
+        <!-- Tasks Tab -->
+        <div id="tasks" class="tab-content">
+            <div style="display: flex; align-items: center; margin: 15px;">
+                <button class="new-item-btn" onclick="toggleInputs('tasks')">
+                    <i class="fas fa-plus"></i> New Task
+                </button>
+                <div class="search-container">
+                    <input type="text" class="search-bar" id="taskSearch" placeholder="Search tasks..." oninput="searchTasks()">
+                </div>
+                <button class="settings-button" onclick="toggleSettingsMenu()" style="margin-left: auto;">
+                    <i class="fas fa-cog"></i>
+                </button>
+                <div class="settings-menu" id="settingsMenu">
+                    <button class="reset-btn" onclick="resetAllData()">
+                        Reset All Data
+                    </button>
+                </div>
+            </div>
+            
+            <div class="input-section collapsed wide-input-section">
+                <div class="input-group">
+                    <input type="text" id="taskTitle" placeholder="Task title">
+                </div>
+                <div class="input-group">
+                    <label for="taskStart">Start Date</label>
+                    <input type="date" id="taskStart">
+                </div>
+                <div class="input-group">
+                    <label for="taskDue">Due Date</label>
+                    <input type="date" id="taskDue">
+                </div>
+                <div class="input-group">
+                    <label>Priority</label>
+                    <div class="star-rating" id="priorityStars">
+                        <i class="fas fa-star" data-value="1"></i>
+                        <i class="fas fa-star" data-value="2"></i>
+                        <i class="fas fa-star" data-value="3"></i>
+                        <i class="fas fa-star" data-value="4"></i>
+                        <i class="fas fa-star" data-value="5"></i>
+                    </div>
+                </div>
+                <div class="input-group">
+                    <label>Color</label>
+                    <div class="color-picker" id="taskColorPicker">
+                        <div class="color-option selected" style="background-color: #1a73e8;" data-color="#1a73e8"></div>
+                        <div class="color-option" style="background-color: #dc3545;" data-color="#dc3545"></div>
+                        <div class="color-option" style="background-color: #28a745;" data-color="#28a745"></div>
+                        <div class="color-option" style="background-color: #ffc107;" data-color="#ffc107"></div>
+                        <div class="color-option" style="background-color: #6f42c1;" data-color="#6f42c1"></div>
+                    </div>
+                </div>
+                <button onclick="addTask()">Add Task</button>
+                
+                <div class="notes-container">
+                    <textarea id="taskNotes" class="large-notes" placeholder="Notes..."></textarea>
+                </div>
+            </div>
+
+            <div class="new-subheading-bar">
+                <input type="text" id="newTaskSubheading" class="new-subheading-input" placeholder="New subheading name">
+                <button onclick="addSubheading('task')">Add</button>
+            </div>
+
+            <div class="task-list" id="tasksList">
+                <h3 class="current-header">Current Tasks</h3>
+                <div id="currentList"></div>
+                
+                <div class="completed-section">
+                    <div class="completed-header" onclick="toggleCompletedTasks()">
+                        <span>Completed Tasks</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="completed-content" id="doneList"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Notes Tab -->
+        <div id="notes" class="tab-content">
+            <h2>Notes</h2>
+            <p>This would contain your note-taking functionality.</p>
+        </div>
+
+        <!-- Contacts Tab -->
+        <div id="contacts" class="tab-content">
+            <h2>Contacts</h2>
+            <p>This would contain your contact management system.</p>
+        </div>
+
+        <!-- Process Tab -->
+        <div id="process" class="tab-content">
+            <h2>Process</h2>
+            <p>This would contain your workflow and process management tools.</p>
+        </div>
+
+        <!-- Calendar Tab -->
+        <div id="calendar" class="tab-content">
+            <h2>Calendar Content</h2>
+            <p>This would contain your calendar view and scheduling tools.</p>
+        </div>
+
+        <!-- Settings Tab -->
+        <div id="settings" class="tab-content">
+            <h2>Settings</h2>
+            <p>This would contain your application settings and configuration options.</p>
+        </div>
+    </div>
+
+    <script>
+        // Sidebar functionality
+        function setActive(clickedItem) {
+            document.querySelectorAll('.menu-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            clickedItem.classList.add('active');
+        }
+
+        function showTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.getElementById(tabName).classList.add('active');
+            
+            const titleMap = {
+                'dashboard': 'Dashboard',
+                'tasks': 'Tasks',
+                'notes': 'Notes',
+                'contacts': 'Contacts',
+                'process': 'Process',
+                'calendar': 'Calendar',
+                'settings': 'Settings'
+            };
+            document.getElementById('contentTitle').textContent = titleMap[tabName];
+        }
+
+        // Task Management Scripts
+        // Data Management
+        let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+        let selectedPriority = 1;
+        let selectedColor = '#1a73e8';
+        let taskSubheadings = JSON.parse(localStorage.getItem('taskSubheadings')) || ['General'];
+        let collapsedSubheadings = JSON.parse(localStorage.getItem('collapsedSubheadings')) || {};
+        let completedTasksCollapsed = JSON.parse(localStorage.getItem('completedTasksCollapsed')) || false;
+
+        // Auto-resize textarea function
+        function autoResizeTextarea(textarea) {
+            textarea.style.height = 'auto'; // Reset height
+            textarea.style.height = (textarea.scrollHeight) + 'px';
+        }
+
+        // Auto-resize notes textarea
+        function autoResizeNotes(textarea) {
+            textarea.style.height = 'auto'; // Reset height to calculate the new height
+            textarea.style.height = textarea.scrollHeight + 'px'; // Set height to fit content
+        }
+
+        // Initialize auto-resize for taskNotes
+        function initAutoResize() {
+            const notesTextarea = document.getElementById('taskNotes');
+            if (notesTextarea) {
+                autoResizeNotes(notesTextarea);
+                notesTextarea.addEventListener('input', function() {
+                    autoResizeNotes(this);
+                });
+            }
+        }
+
+        // Toggle settings menu
+        function toggleSettingsMenu() {
+            const menu = document.getElementById('settingsMenu');
+            menu.classList.toggle('active');
+        }
+
+        // Toggle input sections
+        function toggleInputs(tab) {
+            const inputSection = document.querySelector(`#${tab} .input-section`);
+            const toggleBtn = document.querySelector(`#${tab} .new-item-btn`);
+            
+            inputSection.classList.toggle('collapsed');
+            
+            if (inputSection.classList.contains('collapsed')) {
+                toggleBtn.innerHTML = '<i class="fas fa-plus"></i> New Task';
+            } else {
+                toggleBtn.innerHTML = 'Hide Form';
+                // Ensure the notes textarea is properly sized when shown
+                const notesTextarea = document.getElementById('taskNotes');
+                if (notesTextarea) {
+                    autoResizeNotes(notesTextarea);
+                }
+            }
+        }
+
+        // Toggle completed tasks visibility
+        function toggleCompletedTasks() {
+            const doneList = document.querySelector('.completed-content');
+            const header = document.querySelector('.completed-header');
+            
+            doneList.classList.toggle('collapsed');
+            header.classList.toggle('collapsed');
+            
+            completedTasksCollapsed = !completedTasksCollapsed;
+            localStorage.setItem('completedTasksCollapsed', JSON.stringify(completedTasksCollapsed));
+        }
+
+        // Reset all data
+        function resetAllData() {
+            if (confirm('Are you sure you want to delete ALL data? This cannot be undone.')) {
+                localStorage.clear();
+                tasks = [];
+                taskSubheadings = ['General'];
+                collapsedSubheadings = {};
+                completedTasksCollapsed = false;
+                
+                saveAllData();
+                renderTasks();
+            }
+        }
+
+        function saveAllData() {
+            localStorage.setItem('tasks', JSON.stringify(tasks));
+            localStorage.setItem('taskSubheadings', JSON.stringify(taskSubheadings));
+            localStorage.setItem('collapsedSubheadings', JSON.stringify(collapsedSubheadings));
+            localStorage.setItem('completedTasksCollapsed', JSON.stringify(completedTasksCollapsed));
+        }
+
+        // Subheading functions
+        function renderSubheadings(type) {
+            const listContainer = document.getElementById('tasksList');
+            
+            // Clear the containers
+            listContainer.innerHTML = `
+                <h3 class="current-header">Current Tasks</h3>
+                <div id="currentList"></div>
+                <div class="completed-section">
+                    <div class="completed-header" onclick="toggleCompletedTasks()">
+                        <span>Completed Tasks</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="completed-content" id="doneList"></div>
+                </div>
+            `;
+            
+            // Set initial collapsed state for completed tasks
+            if (completedTasksCollapsed) {
+                document.querySelector('.completed-content').classList.add('collapsed');
+                document.querySelector('.completed-header').classList.add('collapsed');
+            }
+            
+            taskSubheadings.forEach((subheading, index) => {
+                // Render items for this subheading in the list container
+                renderItemsForSubheading(type, subheading, listContainer, index);
+            });
+        }
+
+        function renderItemsForSubheading(type, subheading, container, index) {
+            let items = tasks.filter(t => t.subheading === subheading);
+            
+            if (items.length === 0) return;
+            
+            // Check if this subheading is collapsed
+            const isCollapsed = collapsedSubheadings[`${type}-${subheading}`] || false;
+            
+            // Add subheading label
+            const subheadingElement = document.createElement('div');
+            subheadingElement.className = 'subheading';
+            subheadingElement.onclick = (e) => {
+                // Don't toggle if clicking on controls
+                if (e.target.closest('.subheading-controls')) return;
+                
+                const key = `${type}-${subheading}`;
+                collapsedSubheadings[key] = !collapsedSubheadings[key];
+                localStorage.setItem('collapsedSubheadings', JSON.stringify(collapsedSubheadings));
+                
+                const content = subheadingElement.nextElementSibling;
+                content.classList.toggle('collapsed');
+            };
+            
+            const input = document.createElement('input');
+            input.className = 'subheading-input';
+            input.value = subheading;
+            input.placeholder = 'Subheading name';
+            input.onchange = () => updateSubheading(type, index, input.value);
+            
+            const controls = document.createElement('div');
+            controls.className = 'subheading-controls';
+            
+            const upBtn = document.createElement('button');
+            upBtn.innerHTML = '↑';
+            upBtn.style.padding = '2px 5px';
+            upBtn.onclick = (e) => {
+                e.stopPropagation();
+                moveSubheading(type, index, 'up');
+            };
+            upBtn.disabled = index === 0;
+            
+            const downBtn = document.createElement('button');
+            downBtn.innerHTML = '↓';
+            downBtn.style.padding = '2px 5px';
+            downBtn.onclick = (e) => {
+                e.stopPropagation();
+                moveSubheading(type, index, 'down');
+            };
+            downBtn.disabled = index === taskSubheadings.length - 1;
+            
+            const removeBtn = document.createElement('button');
+            removeBtn.innerHTML = '×';
+            removeBtn.style.padding = '2px 5px';
+            removeBtn.style.backgroundColor = '#dc3545';
+            removeBtn.onclick = (e) => {
+                e.stopPropagation();
+                removeSubheading(type, index);
+            };
+            removeBtn.disabled = taskSubheadings.length <= 1;
+            
+            controls.appendChild(upBtn);
+            controls.appendChild(downBtn);
+            controls.appendChild(removeBtn);
+            
+            subheadingElement.appendChild(input);
+            subheadingElement.appendChild(controls);
+            
+            // Create content container
+            const contentContainer = document.createElement('div');
+            contentContainer.className = `collapsible-content ${isCollapsed ? 'collapsed' : ''}`;
+            
+            // For tasks, we need to add to either current or completed list
+            const currentItems = items.filter(t => !t.completed);
+            const completedItems = items.filter(t => t.completed);
+            
+            if (currentItems.length > 0) {
+                const currentContainer = document.getElementById('currentList');
+                currentContainer.appendChild(subheadingElement.cloneNode(true));
+                const currentContent = document.createElement('div');
+                currentContent.className = `collapsible-content ${isCollapsed ? 'collapsed' : ''}`;
+                
+                currentItems.forEach(task => {
+                    const taskElement = createTaskElement(task);
+                    currentContent.appendChild(taskElement);
+                });
+                
+                currentContainer.appendChild(currentContent);
+            }
+            
+            if (completedItems.length > 0) {
+                const completedHeader = document.createElement('div');
+                completedHeader.className = 'subheading';
+                completedHeader.textContent = `${subheading} - Completed`;
+                completedHeader.onclick = (e) => {
+                    if (e.target.closest('.subheading-controls')) return;
+                    const key = `${type}-${subheading}-completed`;
+                    collapsedSubheadings[key] = !collapsedSubheadings[key];
+                    localStorage.setItem('collapsedSubheadings', JSON.stringify(collapsedSubheadings));
+                    
+                    const content = completedHeader.nextElementSibling;
+                    content.classList.toggle('collapsed');
+                };
+                
+                document.getElementById('doneList').appendChild(completedHeader);
+                const completedContent = document.createElement('div');
+                completedContent.className = `collapsible-content ${collapsedSubheadings[`${type}-${subheading}-completed`] ? 'collapsed' : ''}`;
+                
+                completedItems.forEach(task => {
+                    const taskElement = createTaskElement(task);
+                    completedContent.appendChild(taskElement);
+                });
+                
+                document.getElementById('doneList').appendChild(completedContent);
+            }
+        }
+
+        function moveSubheading(type, index, direction) {
+            if (direction === 'up' && index > 0) {
+                // Swap the subheadings
+                [taskSubheadings[index], taskSubheadings[index - 1]] = [taskSubheadings[index - 1], taskSubheadings[index]];
+            } else if (direction === 'down' && index < taskSubheadings.length - 1) {
+                // Swap the subheadings
+                [taskSubheadings[index], taskSubheadings[index + 1]] = [taskSubheadings[index + 1], taskSubheadings[index]];
+            }
+            
+            // Save both the subheadings and tasks
+            saveSubheadings(type);
+            saveTasks();
+            
+            // Re-render everything
+            renderSubheadings(type);
+        }
+
+        function updateSubheading(type, index, value) {
+            const oldValue = taskSubheadings[index];
+            taskSubheadings[index] = value;
+            
+            // Update all items with the old subheading
+            tasks.forEach(task => {
+                if (task.subheading === oldValue) {
+                    task.subheading = value;
+                }
+            });
+            saveTasks();
+            
+            saveSubheadings(type);
+            renderSubheadings(type);
+        }
+
+        function addSubheading(type) {
+            const inputId = `new${type.charAt(0).toUpperCase() + type.slice(1)}Subheading`;
+            const newSubheading = document.getElementById(inputId).value.trim();
+            
+            if (!newSubheading) return;
+            
+            if (!taskSubheadings.includes(newSubheading)) {
+                taskSubheadings.push(newSubheading);
+                document.getElementById(inputId).value = '';
+                saveSubheadings(type);
+                renderSubheadings(type);
+            }
+        }
+
+        function removeSubheading(type, index) {
+            if (taskSubheadings.length <= 1) return;
+            
+            if (!confirm(`Are you sure you want to delete the "${taskSubheadings[index]}" subheading? All items in this subheading will be moved to "${taskSubheadings[0]}"`)) {
+                return;
+            }
+            
+            // Move items from this subheading to the first subheading
+            const subheadingToRemove = taskSubheadings[index];
+            tasks.forEach(task => {
+                if (task.subheading === subheadingToRemove) {
+                    task.subheading = taskSubheadings[0];
+                }
+            });
+            saveTasks();
+            
+            // Remove from collapsed state tracking
+            const key = `${type}-${subheadingToRemove}`;
+            if (collapsedSubheadings[key]) {
+                delete collapsedSubheadings[key];
+            }
+            
+            taskSubheadings.splice(index, 1);
+            saveSubheadings(type);
+            renderSubheadings(type);
+        }
+
+        function saveSubheadings(type) {
+            localStorage.setItem('taskSubheadings', JSON.stringify(taskSubheadings));
+        }
+
+        // Star Rating System
+        function setupStarRating() {
+            const stars = document.querySelectorAll('#priorityStars i');
+            stars.forEach(star => {
+                star.addEventListener('click', () => {
+                    const value = parseInt(star.getAttribute('data-value'));
+                    selectedPriority = value;
+                    
+                    // Update stars display
+                    stars.forEach((s, index) => {
+                        if (index < value) {
+                            s.classList.add('active');
+                        } else {
+                            s.classList.remove('active');
+                        }
+                    });
+                });
+            });
+            
+            // Set up color picker
+            const colorOptions = document.querySelectorAll('#taskColorPicker .color-option');
+            colorOptions.forEach(option => {
+                option.addEventListener('click', () => {
+                    colorOptions.forEach(opt => opt.classList.remove('selected'));
+                    option.classList.add('selected');
+                    selectedColor = option.getAttribute('data-color');
+                });
+            });
+        }
+
+        // Task Functions
+        function addTask() {
+            const priorityText = 
+                selectedPriority >= 4 ? 'high' : 
+                selectedPriority >= 2 ? 'medium' : 'low';
+
+            const task = {
+                id: Date.now(),
+                title: document.getElementById('taskTitle').value.trim(),
+                start: document.getElementById('taskStart').value,
+                due: document.getElementById('taskDue').value,
+                priority: priorityText,
+                priorityValue: selectedPriority,
+                notes: document.getElementById('taskNotes').value,
+                currentStep: '',
+                completed: false,
+                created: new Date().toISOString(),
+                subheading: taskSubheadings[0],
+                color: selectedColor
+            };
+
+            if (!task.title) return;
+
+            tasks.push(task);
+            saveTasks();
+            renderTasks();
+            clearTaskForm();
+        }
+
+        function renderTasks() {
+            renderSubheadings('task');
+        }
+
+        function createTaskElement(task) {
+            const taskElement = document.createElement('div');
+            taskElement.className = `task-item priority-${task.priority} ${task.completed ? 'completed' : ''}`;
+            taskElement.setAttribute('data-id', task.id);
+            
+            // Calculate timeline progress if dates exist
+            let timelineHTML = '';
+            if (task.start && task.due) {
+                const progress = calculateTimelineProgress(task.start, task.due);
+                
+                // Determine color based on progress
+                let progressColor;
+                if (progress.percentage < 33) {
+                    progressColor = '#28a745'; // Green
+                } else if (progress.percentage < 66) {
+                    progressColor = '#ffc107'; // Yellow
+                } else {
+                    progressColor = '#dc3545'; // Red
+                }
+                
+                timelineHTML = `
+                    <div class="timeline-container">
+                        <div class="timeline-bar">
+                            <div class="timeline-progress" style="width: ${progress.percentage}%; background-color: ${progressColor}"></div>
+                        </div>
+                        <div class="timeline-dates">
+                            <span>${formatDate(task.due)}</span>
+                        </div>
+                    </div>
+                `;
+            }
+
+            // Create star rating for priority
+            let starsHTML = '';
+            for (let i = 1; i <= 5; i++) {
+                starsHTML += `<i class="fas fa-star ${i <= task.priorityValue ? 'active' : ''}" 
+                             onclick="updateTaskPriority(${task.id}, ${i})"></i>`;
+            }
+
+            // Subheading selector
+            const subheadingOptions = taskSubheadings.map(sh => 
+                `<option value="${sh}" ${task.subheading === sh ? 'selected' : ''}>${sh}</option>`
+            ).join('');
+
+            // Color picker for the task
+            const colors = ['#1a73e8', '#dc3545', '#28a745', '#ffc107', '#6f42c1'];
+            const colorOptions = colors.map(color => 
+                `<div class="color-option ${task.color === color ? 'selected' : ''}" 
+                      style="background-color: ${color}" 
+                      data-color="${color}"
+                      onclick="updateTaskColor(${task.id}, '${color}')"></div>`
+            ).join('');
+
+            taskElement.innerHTML = `
+                <div class="task-header">
+                    <span class="task-title" contenteditable="true" 
+                          oninput="updateTaskField(${task.id}, 'title', this.innerText)">
+                        ${task.title}
+                    </span>
+                    <div class="complete-checkbox">
+                        <input type="checkbox" id="complete-${task.id}" ${task.completed ? 'checked' : ''} 
+                               onchange="toggleTask(${task.id})">
+                        <label for="complete-${task.id}" class="complete-checkbox-label">Complete</label>
+                    </div>
+                    <div class="task-controls">
+                        <button class="delete-btn" onclick="confirmDelete('task', ${task.id})">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="subheading-selector">
+                    <select onchange="updateTaskField(${task.id}, 'subheading', this.value)">
+                        ${subheadingOptions}
+                    </select>
+                </div>
+                <textarea class="current-step" placeholder="Current step..." 
+                       oninput="updateTaskField(${task.id}, 'currentStep', this.value); autoResizeTextarea(this)">${task.currentStep || ''}</textarea>
+                <div class="task-meta">
+                    <div class="task-meta-item">
+                        <span>Priority:</span>
+                        <div class="star-rating">
+                            ${starsHTML}
+                        </div>
+                    </div>
+                    <div class="task-meta-item">
+                        <span>Start:</span>
+                        <input type="date" value="${task.start}" 
+                               onchange="updateTaskField(${task.id}, 'start', this.value)">
+                    </div>
+                    <div class="task-meta-item">
+                        <span>Due:</span>
+                        <input type="date" value="${task.due}" 
+                               onchange="updateTaskField(${task.id}, 'due', this.value)">
+                    </div>
+                    <div class="task-meta-item">
+                        <span>Color:</span>
+                        <div class="color-picker">
+                            ${colorOptions}
+                        </div>
+                    </div>
+                    ${timelineHTML}
+                </div>
+                <div class="notes-header" onclick="toggleNotes(this)">
+                    Notes
+                </div>
+                <div class="notes-content">
+                    <textarea oninput="updateTaskField(${task.id}, 'notes', this.value); autoResizeNotes(this)"
+                              style="width:100%; min-height: 120px;">${task.notes}</textarea>
+                </div>
+                <div class="move-buttons">
+                    <button onclick="moveTask(${task.id}, 'up')">↑</button>
+                    <button onclick="moveTask(${task.id}, 'down')">↓</button>
+                </div>
+            `;
+            
+            // Initialize auto-resize for the current step textarea
+            const currentStepTextarea = taskElement.querySelector('.current-step');
+            autoResizeTextarea(currentStepTextarea);
+            
+            // Initialize auto-resize for the notes textarea if expanded
+            const notesHeader = taskElement.querySelector('.notes-header');
+            const notesContent = taskElement.querySelector('.notes-content');
+            const notesTextarea = taskElement.querySelector('.notes-content textarea');
+            
+            if (notesTextarea) {
+                notesTextarea.addEventListener('input', function() {
+                    autoResizeNotes(this);
+                });
+                
+                // If notes are expanded, resize them initially
+                if (notesContent.classList.contains('expanded')) {
+                    autoResizeNotes(notesTextarea);
+                }
+            }
+            
+            return taskElement;
+        }
+
+        function calculateTimelineProgress(startDate, dueDate) {
+            const now = new Date();
+            const start = new Date(startDate);
+            const end = new Date(dueDate);
+            
+            // Ensure dates are valid
+            if (isNaN(start.getTime()) || isNaN(end.getTime())) {
+                return { percentage: 0, status: 'invalid' };
+            }
+            
+            const total = end - start;
+            const elapsed = now - start;
+            
+            let percentage = (elapsed / total) * 100;
+            
+            // Clamp between 0 and 100
+            percentage = Math.max(0, Math.min(100, percentage));
+            
+            let status = 'on-track';
+            if (now > end) {
+                status = 'overdue';
+            } else if (percentage > 80) {
+                status = 'nearing-deadline';
+            }
+            
+            return { percentage, status };
+        }
+
+        function formatDate(dateString) {
+            if (!dateString) return '';
+            const options = { year: 'numeric', month: 'short', day: 'numeric' };
+            return new Date(dateString).toLocaleDateString(undefined, options);
+        }
+
+        function updateTaskPriority(taskId, newPriority) {
+            const task = tasks.find(t => t.id === taskId);
+            if (task) {
+                task.priorityValue = newPriority;
+                task.priority = newPriority >= 4 ? 'high' : newPriority >= 2 ? 'medium' : 'low';
+                saveTasks();
+                renderTasks();
+            }
+        }
+
+        function updateTaskColor(taskId, color) {
+            const task = tasks.find(t => t.id === taskId);
+            if (task) {
+                task.color = color;
+                saveTasks();
+                renderTasks();
+            }
+        }
+
+        function toggleTask(id) {
+            const task = tasks.find(t => t.id === id);
+            if (task) {
+                task.completed = !task.completed;
+                saveTasks();
+                renderTasks();
+            }
+        }
+
+        function moveTask(id, direction) {
+            const index = tasks.findIndex(t => t.id === id);
+            if (direction === 'up' && index > 0) {
+                [tasks[index], tasks[index - 1]] = [tasks[index - 1], tasks[index]];
+            } else if (direction === 'down' && index < tasks.length - 1) {
+                [tasks[index], tasks[index + 1]] = [tasks[index + 1], tasks[index]];
+            }
+            saveTasks();
+            renderTasks();
+        }
+
+        // Common Functions
+        function confirmDelete(type, id) {
+            if (window.confirm(`Are you sure you want to delete this ${type}?`)) {
+                deleteTask(id);
+            }
+        }
+
+        function deleteTask(id) {
+            tasks = tasks.filter(t => t.id !== id);
+            saveTasks();
+            renderTasks();
+        }
+
+        function updateTaskField(id, field, value) {
+            const task = tasks.find(t => t.id === id);
+            if (task) {
+                task[field] = value;
+                saveTasks();
+                if (field === 'subheading') {
+                    renderTasks();
+                }
+            }
+        }
+
+        function toggleNotes(header) {
+            const content = header.nextElementSibling;
+            content.classList.toggle('expanded');
+
+            // Automatically resize all textareas inside the expanded notes content
+            const textareas = content.querySelectorAll('textarea');
+            textareas.forEach(textarea => {
+                autoResizeNotes(textarea);
+                textarea.addEventListener('input', () => autoResizeNotes(textarea));
+            });
+        }
+
+        function searchTasks() {
+            const searchTerm = document.getElementById('taskSearch').value.toLowerCase();
+            const filtered = tasks.filter(t => 
+                t.title.toLowerCase().includes(searchTerm) ||
+                (t.notes && t.notes.toLowerCase().includes(searchTerm)) ||
+                (t.currentStep && t.currentStep.toLowerCase().includes(searchTerm))
+            );
+            
+            const tasksList = document.getElementById('tasksList');
+            tasksList.innerHTML = `
+                <h3 class="current-header">Current Tasks</h3>
+                <div id="currentList"></div>
+                <div class="completed-section">
+                    <div class="completed-header" onclick="toggleCompletedTasks()">
+                        <span>Completed Tasks</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="completed-content" id="doneList"></div>
+                </div>
+            `;
+            
+            // Set initial collapsed state for completed tasks in search results
+            if (completedTasksCollapsed) {
+                document.querySelector('.completed-content').classList.add('collapsed');
+                document.querySelector('.completed-header').classList.add('collapsed');
+            }
+            
+            // Group by subheading
+            const currentGrouped = {};
+            const completedGrouped = {};
+            
+            filtered.forEach(task => {
+                if (!task.completed) {
+                    if (!currentGrouped[task.subheading]) {
+                        currentGrouped[task.subheading] = [];
+                    }
+                    currentGrouped[task.subheading].push(task);
+                } else {
+                    if (!completedGrouped[task.subheading]) {
+                        completedGrouped[task.subheading] = [];
+                    }
+                    completedGrouped[task.subheading].push(task);
+                }
+            });
+            
+            // Render current tasks
+            for (const [subheading, items] of Object.entries(currentGrouped)) {
+                const subheadingElement = document.createElement('div');
+                subheadingElement.className = 'subheading';
+                subheadingElement.textContent = subheading;
+                document.getElementById('currentList').appendChild(subheadingElement);
+                
+                items.forEach(task => {
+                    const taskElement = createTaskElement(task);
+                    document.getElementById('currentList').appendChild(taskElement);
+                });
+            }
+            
+            // Render completed tasks
+            for (const [subheading, items] of Object.entries(completedGrouped)) {
+                const subheadingElement = document.createElement('div');
+                subheadingElement.className = 'subheading';
+                subheadingElement.textContent = `${subheading} - Completed`;
+                document.getElementById('doneList').appendChild(subheadingElement);
+                
+                items.forEach(task => {
+                    const taskElement = createTaskElement(task);
+                    document.getElementById('doneList').appendChild(taskElement);
+                });
+            }
+        }
+
+        // Form Clearing
+        function clearTaskForm() {
+            document.getElementById('taskTitle').value = '';
+            document.getElementById('taskStart').value = '';
+            document.getElementById('taskDue').value = '';
+            document.getElementById('taskNotes').value = '';
+            // Reset textarea height
+            const notesTextarea = document.getElementById('taskNotes');
+            notesTextarea.style.height = 'auto';
+            // Reset star rating
+            selectedPriority = 1;
+            const stars = document.querySelectorAll('#priorityStars i');
+            stars.forEach((star, index) => {
+                if (index === 0) {
+                    star.classList.add('active');
+                } else {
+                    star.classList.remove('active');
+                }
+            });
+            // Reset color picker
+            selectedColor = '#1a73e8';
+            const colorOptions = document.querySelectorAll('#taskColorPicker .color-option');
+            colorOptions.forEach((option, index) => {
+                if (index === 0) {
+                    option.classList.add('selected');
+                } else {
+                    option.classList.remove('selected');
+                }
+            });
+        }
+
+        // Storage
+        function saveTasks() { localStorage.setItem('tasks', JSON.stringify(tasks)); }
+
+        // Initialization
+        window.onload = () => {
+            setupStarRating();
+            renderTasks();
+            initAutoResize();
+            
+            // Collapse all input sections by default
+            document.querySelectorAll('.input-section').forEach(section => {
+                section.classList.add('collapsed');
+            });
+            
+            document.querySelector('.menu-item:nth-child(1)').classList.add('active');
+        };
+    </script>
+</body>
+</html>
