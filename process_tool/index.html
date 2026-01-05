@@ -1,0 +1,771 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Process Management</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f5f7fa;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .main-content {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
+            background-color: white;
+        }
+
+        .content-header {
+            padding: 15px 20px;
+            background-color: #f8f9fa;
+            border-bottom: 1px solid #e0e0e0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .content-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .tab-content {
+            padding: 20px;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        .input-section {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 15px;
+            transition: all 0.3s ease;
+            overflow: hidden;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 15px;
+        }
+
+        .input-section.collapsed {
+            max-height: 0;
+            margin-bottom: 0;
+            opacity: 0;
+            visibility: hidden;
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+
+        .input-row {
+            display: flex;
+            gap: 10px;
+            align-items: flex-end;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            min-width: 150px;
+            flex-grow: 1;
+        }
+
+        .input-group label {
+            font-size: 12px;
+            margin-bottom: 4px;
+            color: #555;
+        }
+
+        input, select {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 13px;
+            width: 100%;
+        }
+
+        button {
+            padding: 8px 15px;
+            background-color: #1a73e8;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: filter 0.3s;
+            font-size: 13px;
+            height: fit-content;
+        }
+
+        button:hover {
+            filter: brightness(0.9);
+        }
+
+        .process-item {
+            padding: 12px;
+            background-color: white;
+            margin-bottom: 8px;
+            border-radius: 4px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            position: relative;
+            border: 1px solid #eaeaea;
+        }
+
+        .process-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .process-title {
+            width: 75%;
+            max-width: 75%;
+            word-wrap: break-word;
+            min-height: 20px;
+            padding: 5px;
+            border: none;
+            border-radius: 4px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .process-title:focus {
+            outline: 2px solid #1a73e8;
+            background-color: #f8f9fa;
+        }
+
+        .revision-date-container {
+            margin: 5px 0;
+            font-size: 13px;
+            color: #666;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .revision-date-container input {
+            padding: 4px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 12px;
+            width: 150px;
+        }
+
+        .delete-btn {
+            background-color: #dc3545;
+            padding: 6px 12px;
+        }
+
+        .move-buttons {
+            position: absolute;
+            top: 50px;
+            right: 12px;
+            display: flex;
+            gap: 5px;
+        }
+
+        .search-container {
+            display: inline-flex;
+            flex-grow: 1;
+            margin-bottom: 0;
+            align-items: center;
+        }
+
+        .search-bar {
+            flex-grow: 1;
+            max-width: 400px;
+            margin-left: 10px;
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 13px;
+        }
+
+        .notes-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin: 10px 0;
+            cursor: pointer;
+            color: #1a73e8;
+            font-size: 0.9em;
+            user-select: none;
+        }
+
+        .notes-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+        }
+
+        .notes-content.expanded {
+            max-height: 1000px;
+        }
+
+        .process-instructions {
+            width: 100%;
+            min-height: 120px;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 13px;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            overflow-y: auto;
+            background-color: white;
+            line-height: 1.4;
+        }
+
+        .process-instructions:empty::before {
+            content: "Enter step-by-step instructions...";
+            color: #999;
+        }
+
+        .process-instructions:focus {
+            outline: 2px solid #1a73e8;
+        }
+
+        .process-controls {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .new-item-btn {
+            min-width: 120px;
+            margin-right: 10px;
+            padding: 8px 15px;
+            font-size: 13px;
+            background-color: #28a745;
+        }
+
+        .subheading {
+            background-color: #e0e0e0;
+            padding: 5px 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            position: relative;
+            cursor: pointer;
+            height: 30px;
+        }
+
+        .subheading-input {
+            border: none;
+            background: transparent;
+            font-weight: bold;
+            flex: 1;
+            padding: 2px 5px;
+            height: 20px;
+        }
+
+        .subheading-input:focus {
+            outline: none;
+            background: white;
+        }
+
+        .subheading-controls {
+            display: flex;
+            gap: 5px;
+            margin-left: 10px;
+        }
+
+        .process-subheading-selector {
+            position: absolute;
+            right: 50px;
+            top: 12px;
+        }
+
+        .new-subheading-bar {
+            display: flex;
+            gap: 5px;
+            margin: 10px 0;
+            height: 30px;
+            background-color: #e0e0e0;
+            padding: 5px 10px;
+            border-radius: 4px;
+            align-items: center;
+        }
+
+        .new-subheading-input {
+            flex: 1;
+            border: none;
+            background: transparent;
+            padding: 2px 5px;
+            height: 20px;
+        }
+
+        .new-subheading-input:focus {
+            outline: none;
+            background: white;
+        }
+
+        .collapsible-content {
+            max-height: 1000px;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+
+        .collapsible-content.collapsed {
+            max-height: 0;
+        }
+
+        .revision-date-input {
+            width: 200px;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                height: auto;
+            }
+            
+            .input-row {
+                flex-direction: column;
+            }
+            
+            button {
+                padding: 6px 12px;
+                width: 100%;
+            }
+
+            .process-subheading-selector {
+                position: static;
+                margin-top: 5px;
+                width: 100%;
+            }
+
+            .process-title {
+                width: 100% !important;
+                max-width: 100% !important;
+            }
+
+            .revision-date-container input {
+                width: 100%;
+            }
+
+            .revision-date-input {
+                width: 100%;
+            }
+            
+            .content-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+            
+            .search-bar {
+                max-width: 100%;
+                margin-left: 0;
+                width: 100%;
+            }
+            
+            .process-controls {
+                position: static;
+                margin-top: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="main-content">
+        <div class="content-header">
+            <div class="content-title">Process Management</div>
+            <div class="search-container">
+                <input type="text" class="search-bar" id="processSearch" placeholder="Search processes..." oninput="searchProcesses()">
+            </div>
+        </div>
+
+        <div class="tab-content">
+            <div style="display: flex; align-items: center; margin-bottom: 15px;">
+                <button class="new-item-btn" onclick="toggleInputs()">
+                    <i class="fas fa-plus"></i> New Process
+                </button>
+            </div>
+            
+            <div class="input-section collapsed">
+                <div class="input-row">
+                    <div class="input-group">
+                        <input type="text" id="processTitle" placeholder="Process title">
+                    </div>
+                    <button onclick="addProcess()">Add Process</button>
+                </div>
+                <div class="input-row">
+                    <div class="input-group">
+                        <label for="revisionDate">Most Recent Revision Date (optional)</label>
+                        <input type="date" id="revisionDate" class="revision-date-input">
+                    </div>
+                </div>
+                <div class="input-group">
+                    <label for="processStepsInput">Step-by-step instructions:</label>
+                    <div 
+                        id="processStepsInput" 
+                        class="process-instructions" 
+                        contenteditable="true"
+                        placeholder="Step-by-step instructions..."></div>
+                </div>
+            </div>
+            
+            <div class="new-subheading-bar">
+                <input type="text" id="newProcessSubheading" class="new-subheading-input" placeholder="New subheading name">
+                <button onclick="addSubheading()">Add</button>
+            </div>
+            
+            <div id="processesList"></div>
+        </div>
+    </div>
+
+    <script>
+        // Data Management
+        let processes = JSON.parse(localStorage.getItem('processes')) || [];
+        let processSubheadings = JSON.parse(localStorage.getItem('processSubheadings')) || ['General'];
+        let collapsedSubheadings = JSON.parse(localStorage.getItem('collapsedSubheadings')) || {};
+
+        // Toggle input sections
+        function toggleInputs() {
+            const inputSection = document.querySelector('.input-section');
+            const toggleBtn = document.querySelector('.new-item-btn');
+            
+            inputSection.classList.toggle('collapsed');
+            toggleBtn.innerHTML = inputSection.classList.contains('collapsed') 
+                ? '<i class="fas fa-plus"></i> New Process' 
+                : 'Hide Form';
+        }
+
+        // Subheading functions
+        function addSubheading() {
+            const input = document.getElementById('newProcessSubheading');
+            const name = input.value.trim();
+            
+            if (!name || processSubheadings.includes(name)) return;
+            
+            processSubheadings.push(name);
+            saveSubheadings();
+            input.value = '';
+            renderProcesses();
+        }
+
+        function updateSubheading(index, newName) {
+            newName = newName.trim();
+            if (!newName || processSubheadings[index] === newName) return;
+            
+            // Update all processes with the old subheading name
+            processes.forEach(process => {
+                if (process.subheading === processSubheadings[index]) {
+                    process.subheading = newName;
+                }
+            });
+            
+            processSubheadings[index] = newName;
+            saveSubheadings();
+            saveProcesses();
+            renderProcesses();
+        }
+
+        function moveSubheading(index, direction) {
+            if ((direction === 'up' && index === 0) || 
+                (direction === 'down' && index === processSubheadings.length - 1)) {
+                return;
+            }
+            
+            const newIndex = direction === 'up' ? index - 1 : index + 1;
+            [processSubheadings[index], processSubheadings[newIndex]] = 
+                [processSubheadings[newIndex], processSubheadings[index]];
+            
+            saveSubheadings();
+            renderProcesses();
+        }
+
+        function removeSubheading(index) {
+            if (processSubheadings.length <= 1) return;
+            
+            const subheadingToRemove = processSubheadings[index];
+            const defaultSubheading = processSubheadings[0] === subheadingToRemove ? 
+                processSubheadings[1] : processSubheadings[0];
+            
+            // Move all processes to the default subheading
+            processes.forEach(process => {
+                if (process.subheading === subheadingToRemove) {
+                    process.subheading = defaultSubheading;
+                }
+            });
+            
+            processSubheadings.splice(index, 1);
+            saveSubheadings();
+            saveProcesses();
+            renderProcesses();
+        }
+
+        function renderSubheadings(filteredProcesses = processes) {
+            const listContainer = document.getElementById('processesList');
+            listContainer.innerHTML = '';
+            
+            processSubheadings.forEach((subheading, index) => {
+                renderItemsForSubheading(subheading, listContainer, index, filteredProcesses);
+            });
+        }
+
+        function renderItemsForSubheading(subheading, container, index, filteredProcesses = processes) {
+            let items = filteredProcesses.filter(p => p.subheading === subheading);
+            if (items.length === 0) return;
+            
+            const isCollapsed = collapsedSubheadings[`process-${subheading}`] || false;
+            
+            const subheadingElement = document.createElement('div');
+            subheadingElement.className = 'subheading';
+            subheadingElement.onclick = (e) => {
+                if (e.target.closest('.subheading-controls')) return;
+                const key = `process-${subheading}`;
+                collapsedSubheadings[key] = !collapsedSubheadings[key];
+                localStorage.setItem('collapsedSubheadings', JSON.stringify(collapsedSubheadings));
+                subheadingElement.nextElementSibling.classList.toggle('collapsed');
+            };
+            
+            const input = document.createElement('input');
+            input.className = 'subheading-input';
+            input.value = subheading;
+            input.placeholder = 'Subheading name';
+            input.onchange = () => updateSubheading(index, input.value);
+            
+            const controls = document.createElement('div');
+            controls.className = 'subheading-controls';
+            
+            const upBtn = document.createElement('button');
+            upBtn.innerHTML = '↑';
+            upBtn.style.padding = '2px 5px';
+            upBtn.onclick = (e) => {
+                e.stopPropagation();
+                moveSubheading(index, 'up');
+            };
+            upBtn.disabled = index === 0;
+            
+            const downBtn = document.createElement('button');
+            downBtn.innerHTML = '↓';
+            downBtn.style.padding = '2px 5px';
+            downBtn.onclick = (e) => {
+                e.stopPropagation();
+                moveSubheading(index, 'down');
+            };
+            downBtn.disabled = index === processSubheadings.length - 1;
+            
+            const removeBtn = document.createElement('button');
+            removeBtn.innerHTML = '×';
+            removeBtn.style.padding = '2px 5px';
+            removeBtn.style.backgroundColor = '#dc3545';
+            removeBtn.onclick = (e) => {
+                e.stopPropagation();
+                removeSubheading(index);
+            };
+            removeBtn.disabled = processSubheadings.length <= 1;
+            
+            controls.appendChild(upBtn);
+            controls.appendChild(downBtn);
+            controls.appendChild(removeBtn);
+            subheadingElement.appendChild(input);
+            subheadingElement.appendChild(controls);
+            
+            const contentContainer = document.createElement('div');
+            contentContainer.className = `collapsible-content ${isCollapsed ? 'collapsed' : ''}`;
+            
+            items.forEach(item => {
+                contentContainer.appendChild(createProcessElement(item));
+            });
+            
+            container.appendChild(subheadingElement);
+            container.appendChild(contentContainer);
+        }
+
+        function createProcessElement(process) {
+            const processElement = document.createElement('div');
+            processElement.className = 'process-item';
+            processElement.setAttribute('data-id', process.id);
+            
+            let revisionDateValue = '';
+            if (process.revisionDate) {
+                const date = new Date(process.revisionDate);
+                revisionDateValue = date.toISOString().split('T')[0];
+            }
+            
+            const subheadingOptions = processSubheadings.map(sh => 
+                `<option value="${sh}" ${process.subheading === sh ? 'selected' : ''}>${sh}</option>`
+            ).join('');
+
+            processElement.innerHTML = `
+                <div class="process-header">
+                    <span class="process-title" contenteditable="true" 
+                          oninput="updateProcessField(${process.id}, 'title', this.innerText)">
+                        ${process.title}
+                    </span>
+                    <div class="process-controls">
+                        <button class="delete-btn" onclick="confirmDelete(${process.id})">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="revision-date-container">
+                    <span>Last Revised: </span>
+                    <input type="date" class="revision-date-input" 
+                           value="${revisionDateValue}"
+                           onchange="updateProcessField(${process.id}, 'revisionDate', this.value ? new Date(this.value).toISOString() : null)">
+                </div>
+                <div class="process-subheading-selector">
+                    <select onchange="updateProcessField(${process.id}, 'subheading', this.value)">
+                        ${subheadingOptions}
+                    </select>
+                </div>
+                <div class="notes-header" onclick="toggleNotes(this)">
+                    <i class="fas fa-chevron-right"></i> Steps
+                </div>
+                <div class="notes-content">
+                    <div class="process-instructions" 
+                         contenteditable="true"
+                         oninput="updateProcessField(${process.id}, 'steps', this.innerText)">
+                         ${process.steps.replace(/\n/g, '<br>')}
+                    </div>
+                </div>
+                <div class="move-buttons">
+                    <button onclick="moveProcess(${process.id}, 'up')">↑</button>
+                    <button onclick="moveProcess(${process.id}, 'down')">↓</button>
+                </div>
+            `;
+
+            // Add paste event handler for instructions
+            const instructionsDiv = processElement.querySelector('.process-instructions');
+            instructionsDiv.addEventListener('paste', (e) => {
+                e.preventDefault();
+                const text = (e.clipboardData || window.clipboardData).getData('text/plain');
+                document.execCommand('insertText', false, text);
+            });
+
+            return processElement;
+        }
+
+        // Process Functions
+        function addProcess() {
+            const revisionDateInput = document.getElementById('revisionDate');
+            const revisionDate = revisionDateInput.value ? new Date(revisionDateInput.value).toISOString() : null;
+            const stepsInput = document.getElementById('processStepsInput');
+            
+            const process = {
+                id: Date.now(),
+                title: document.getElementById('processTitle').value.trim(),
+                revisionDate: revisionDate,
+                steps: stepsInput.innerText.replace(/\n/g, '<br>'),
+                created: new Date().toISOString(),
+                updated: new Date().toISOString(),
+                subheading: processSubheadings[0]
+            };
+
+            if (!process.title) return;
+
+            processes.push(process);
+            saveProcesses();
+            renderProcesses();
+            clearProcessForm();
+            
+            // Hide the form after adding
+            toggleInputs();
+        }
+
+        function renderProcesses(filteredProcesses = processes) {
+            renderSubheadings(filteredProcesses);
+        }
+
+        function updateProcessField(id, field, value) {
+            const process = processes.find(p => p.id === id);
+            if (process) {
+                process[field] = field === 'steps' ? value.replace(/<br>/g, '\n') : value;
+                process.updated = new Date().toISOString();
+                saveProcesses();
+                if (field === 'subheading') renderProcesses();
+            }
+        }
+
+        function moveProcess(id, direction) {
+            const index = processes.findIndex(p => p.id === id);
+            if (index === -1) return;
+            
+            if ((direction === 'up' && index === 0) || 
+                (direction === 'down' && index === processes.length - 1)) {
+                return;
+            }
+            
+            const newIndex = direction === 'up' ? index - 1 : index + 1;
+            
+            [processes[index], processes[newIndex]] = [processes[newIndex], processes[index]];
+            saveProcesses();
+            renderProcesses();
+        }
+
+        function confirmDelete(id) {
+            if (confirm('Are you sure you want to delete this process?')) {
+                processes = processes.filter(p => p.id !== id);
+                saveProcesses();
+                renderProcesses();
+            }
+        }
+
+        function toggleNotes(header) {
+            const icon = header.querySelector('i');
+            const content = header.nextElementSibling;
+            content.classList.toggle('expanded');
+            if (content.classList.contains('expanded')) {
+                icon.className = 'fas fa-chevron-down';
+            } else {
+                icon.className = 'fas fa-chevron-right';
+            }
+        }
+
+        function searchProcesses() {
+            const searchTerm = document.getElementById('processSearch').value.toLowerCase();
+            if (!searchTerm) {
+                renderProcesses(processes);
+                return;
+            }
+            
+            const filtered = processes.filter(p => 
+                p.title.toLowerCase().includes(searchTerm) || 
+                p.steps.toLowerCase().includes(searchTerm)
+            );
+            
+            renderProcesses(filtered);
+        }
+
+        // Utility Functions
+        function clearProcessForm() {
+            document.getElementById('processTitle').value = '';
+            document.getElementById('revisionDate').value = '';
+            document.getElementById('processStepsInput').innerHTML = '';
+        }
+
+        function saveProcesses() { 
+            localStorage.setItem('processes', JSON.stringify(processes)); 
+        }
+
+        function saveSubheadings() {
+            localStorage.setItem('processSubheadings', JSON.stringify(processSubheadings));
+        }
+
+        // Initialization
+        window.onload = () => {
+            renderProcesses();
+            document.querySelector('.input-section').classList.add('collapsed');
+        };
+    </script>
+</body>
+</html>
