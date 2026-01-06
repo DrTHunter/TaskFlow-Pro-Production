@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Management System</title>
+    <title>Notes Management</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
     <style>
@@ -16,43 +16,33 @@
 
         body {
             background-color: #f5f7fa;
-            display: flex;
             height: 100vh;
             overflow: hidden;
         }
 
-        /* Sidebar Styles */
-        .sidebar {
-            width: 70px;
-            background-color: #2a3647;
-            color: white;
-            height: 100vh;
-            padding: 20px 0;
-            transition: all 0.3s ease;
-            overflow: hidden;
+        /* Main Content Styles - Full Page */
+        .main-content {
             display: flex;
             flex-direction: column;
-            align-items: center;
-            position: relative;
+            height: 100vh;
+            overflow: hidden;
+            background-color: white;
         }
 
-        .sidebar:hover {
-            width: 250px;
-            align-items: flex-start;
-            padding-left: 20px;
-        }
-
-        .logo-container {
+        .content-header {
+            padding: 15px 20px;
+            background-color: #2a3647;
+            border-bottom: 1px solid #1a2533;
             display: flex;
             align-items: center;
-            margin-bottom: 40px;
-            width: 100%;
-            justify-content: center;
+            justify-content: space-between;
+            color: white;
         }
 
-        .sidebar:hover .logo-container {
-            justify-content: flex-start;
-            padding-left: 10px;
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 15px;
         }
 
         .logo {
@@ -68,109 +58,33 @@
             color: #fff;
         }
 
-        .logo-text {
-            margin-left: 15px;
-            font-size: 18px;
-            font-weight: 600;
-            display: none;
-        }
-
-        .sidebar:hover .logo-text {
-            display: block;
-        }
-
-        .nav-menu {
-            width: 100%;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .menu-item {
-            display: flex;
-            align-items: center;
-            padding: 12px 15px;
-            margin-bottom: 5px;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.2s;
-            width: calc(100% - 10px);
-            color: #d1d5db;
-        }
-
-        .menu-item:hover {
-            background-color: #1a2533;
-            color: white;
-        }
-
-        .menu-item.active {
-            background-color: #1a2533;
-            color: white;
-        }
-
-        .menu-icon {
-            font-size: 18px;
-            min-width: 30px;
-            display: flex;
-            justify-content: center;
-        }
-
-        .menu-text {
-            margin-left: 10px;
-            font-size: 14px;
-            font-weight: 500;
-            display: none;
-            white-space: nowrap;
-        }
-
-        .sidebar:hover .menu-text {
-            display: block;
-        }
-
-        .menu-chevron {
-            margin-left: auto;
-            font-size: 12px;
-            transition: transform 0.3s;
-            display: none;
-        }
-
-        .sidebar:hover .menu-chevron {
-            display: block;
-        }
-
-        .menu-item.active .menu-chevron {
-            transform: rotate(180deg);
-        }
-
-        .divider {
-            height: 1px;
-            background-color: #3e4b5e;
-            margin: 20px 0;
-            width: 80%;
-        }
-
-        /* Main Content Styles */
-        .main-content {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            height: 100vh;
-            overflow: hidden;
-            background-color: white;
-        }
-
-        .content-header {
-            padding: 15px 20px;
-            background-color: #f8f9fa;
-            border-bottom: 1px solid #e0e0e0;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
         .content-title {
             font-size: 18px;
             font-weight: 600;
-            color: #333;
+            color: white;
+        }
+
+        .header-controls {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .back-button {
+            padding: 8px 15px;
+            background-color: #1a73e8;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: filter 0.3s;
+            font-size: 13px;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .back-button:hover {
+            filter: brightness(0.9);
         }
 
         .tab-content {
@@ -550,57 +464,25 @@
 
         @media (max-width: 768px) {
             body {
-                flex-direction: column;
                 height: auto;
-            }
-            
-            .sidebar {
-                width: 100%;
-                height: auto;
-                flex-direction: row;
-                padding: 10px;
-                align-items: center;
-            }
-            
-            .sidebar:hover {
-                width: 100%;
-                height: auto;
-            }
-            
-            .logo-container {
-                margin-bottom: 0;
-                margin-right: 20px;
-            }
-            
-            .nav-menu {
-                flex-direction: row;
-                overflow-x: auto;
-            }
-            
-            .menu-item {
-                margin-bottom: 0;
-                margin-right: 5px;
-                padding: 10px;
-            }
-            
-            .menu-text {
-                display: none !important;
-            }
-            
-            .divider {
-                display: none;
             }
             
             .main-content {
                 height: auto;
             }
 
-            .tab-button {
-                flex: 1;
-                padding: 10px;
-                font-size: 12px;
+            .header-left {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 5px;
             }
-            
+
+            .header-controls {
+                flex-direction: column;
+                gap: 10px;
+                align-items: flex-end;
+            }
+
             .input-section {
                 flex-direction: column;
             }
@@ -638,85 +520,28 @@
     </style>
 </head>
 <body>
-    <div class="sidebar">
-        <div class="logo-container">
-            <div class="logo">S</div>
-            <div class="logo-text">System Manager</div>
-        </div>
-        
-        <div class="nav-menu">
-            <div class="menu-item active" onclick="setActive(this); showTab('dashboard')">
-                <div class="menu-icon"><i class="fas fa-home"></i></div>
-                <div class="menu-text">Dashboard</div>
-                <div class="menu-chevron"><i class="fas fa-chevron-down"></i></div>
-            </div>
-            
-            <div class="menu-item" onclick="setActive(this); showTab('tasks')">
-                <div class="menu-icon"><i class="fas fa-tasks"></i></div>
-                <div class="menu-text">Tasks</div>
-                <div class="menu-chevron"><i class="fas fa-chevron-down"></i></div>
-            </div>
-            
-            <div class="menu-item" onclick="setActive(this); showTab('notes')">
-                <div class="menu-icon"><i class="fas fa-sticky-note"></i></div>
-                <div class="menu-text">Notes</div>
-                <div class="menu-chevron"><i class="fas fa-chevron-down"></i></div>
-            </div>
-            
-            <div class="menu-item" onclick="setActive(this); showTab('contacts')">
-                <div class="menu-icon"><i class="fas fa-address-book"></i></div>
-                <div class="menu-text">Contacts</div>
-                <div class="menu-chevron"><i class="fas fa-chevron-down"></i></div>
-            </div>
-            
-            <div class="menu-item" onclick="setActive(this); showTab('process')">
-                <div class="menu-icon"><i class="fas fa-project-diagram"></i></div>
-                <div class="menu-text">Process</div>
-                <div class="menu-chevron"><i class="fas fa-chevron-down"></i></div>
-            </div>
-            
-            <div class="menu-item" onclick="setActive(this); showTab('calendar')">
-                <div class="menu-icon"><i class="fas fa-calendar-alt"></i></div>
-                <div class="menu-text">Calendar</div>
-                <div class="menu-chevron"><i class="fas fa-chevron-down"></i></div>
-            </div>
-            
-            <div class="divider"></div>
-            
-            <div class="menu-item" onclick="setActive(this); showTab('settings')">
-                <div class="menu-icon"><i class="fas fa-cog"></i></div>
-                <div class="menu-text">Settings</div>
-                <div class="menu-chevron"><i class="fas fa-chevron-down"></i></div>
-            </div>
-        </div>
-    </div>
-
     <div class="main-content">
         <div class="content-header">
-            <div class="content-title" id="contentTitle">Dashboard</div>
-        </div>
-
-        <!-- Dashboard Tab -->
-        <div id="dashboard" class="tab-content active">
-            <h2>Dashboard Content</h2>
-            <p>This would contain your dashboard information and metrics.</p>
-        </div>
-
-        <!-- Tasks Tab -->
-        <div id="tasks" class="tab-content">
-            <h2>Tasks</h2>
-            <p>This would contain your task management system.</p>
+            <div class="header-left">
+                <div class="logo">N</div>
+                <div class="content-title">Notes Management</div>
+            </div>
+            <div class="header-controls">
+                <div class="search-container">
+                    <input type="text" class="search-bar" id="noteSearch" placeholder="Search notes..." oninput="searchNotes()">
+                </div>
+                <a href="#" class="back-button" onclick="window.history.back(); return false;">
+                    <i class="fas fa-arrow-left"></i> Back
+                </a>
+            </div>
         </div>
 
         <!-- Notes Tab -->
-        <div id="notes" class="tab-content">
+        <div id="notes" class="tab-content active">
             <div style="display: flex; align-items: center; margin-bottom: 15px;">
                 <button class="new-item-btn" onclick="toggleInputs('notes')">
                     <i class="fas fa-plus"></i> New Note
                 </button>
-                <div class="search-container">
-                    <input type="text" class="search-bar" id="noteSearch" placeholder="Search notes..." oninput="searchNotes()">
-                </div>
             </div>
             
             <div class="input-section collapsed">
@@ -737,30 +562,6 @@
             </div>
             
             <div id="notesList"></div>
-        </div>
-
-        <!-- Contacts Tab -->
-        <div id="contacts" class="tab-content">
-            <h2>Contacts</h2>
-            <p>This would contain your contact management system.</p>
-        </div>
-
-        <!-- Process Tab -->
-        <div id="process" class="tab-content">
-            <h2>Process</h2>
-            <p>This would contain your workflow and process management tools.</p>
-        </div>
-
-        <!-- Calendar Tab -->
-        <div id="calendar" class="tab-content">
-            <h2>Calendar Content</h2>
-            <p>This would contain your calendar view and scheduling tools.</p>
-        </div>
-
-        <!-- Settings Tab -->
-        <div id="settings" class="tab-content">
-            <h2>Settings</h2>
-            <p>This would contain your application settings and configuration options.</p>
         </div>
     </div>
 
@@ -810,37 +611,6 @@
 
         // Store all note Quill instances
         const noteQuills = {};
-
-        // Sidebar functionality
-        function setActive(clickedItem) {
-            document.querySelectorAll('.menu-item').forEach(item => {
-                item.classList.remove('active');
-            });
-            clickedItem.classList.add('active');
-        }
-
-        function showTab(tabName) {
-            document.querySelectorAll('.tab-content').forEach(tab => {
-                tab.classList.remove('active');
-            });
-            document.getElementById(tabName).classList.add('active');
-            
-            const titleMap = {
-                'dashboard': 'Dashboard',
-                'tasks': 'Tasks',
-                'notes': 'Notes',
-                'contacts': 'Contacts',
-                'process': 'Process',
-                'calendar': 'Calendar',
-                'settings': 'Settings'
-            };
-            document.getElementById('contentTitle').textContent = titleMap[tabName];
-            
-            // Adjust editor height when notes tab is shown
-            if (tabName === 'notes') {
-                setTimeout(adjustEditorHeight, 100);
-            }
-        }
 
         // Notes Tab Functionality
         // Data Management
@@ -1305,9 +1075,6 @@
 
         // Initialization
         window.onload = () => {
-            // Initialize sidebar active state
-            document.querySelector('.menu-item:nth-child(1)').classList.add('active');
-            
             // Initialize notes
             renderNotes();
             
