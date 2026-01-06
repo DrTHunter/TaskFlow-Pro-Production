@@ -330,21 +330,32 @@
         }
 
         .task-item .task-meta {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: 10px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
             padding: 12px;
             background-color: #f8f9fa;
             border-radius: 6px;
             margin: 0;
             font-size: 13px;
-            align-items: start;
+            align-items: center;
         }
 
         .task-item .task-meta-item {
             display: flex;
-            flex-direction: column;
-            gap: 6px;
+            flex-direction: row;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .task-item .task-meta-item.datetime-inline {
+            flex-direction: row;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .task-item .task-meta-item.datetime-inline > span:first-child {
+            min-width: auto;
         }
 
         .task-item .task-meta-item > span:first-child {
@@ -357,17 +368,38 @@
 
         .task-item .datetime-row {
             display: flex;
-            gap: 6px;
+            gap: 4px;
             align-items: center;
-            flex-wrap: wrap;
+            flex-wrap: nowrap;
         }
 
         .task-item .datetime-row input {
-            padding: 5px 8px;
+            padding: 5px 6px;
             border-radius: 4px;
             font-size: 12px;
             border: 1px solid #ddd;
-            width: 120px;
+            width: 110px;
+        }
+
+        .task-item .datetime-row input[type="time"] {
+            width: 85px;
+        }
+
+        .task-item .star-rating {
+            gap: 3px;
+        }
+
+        .task-item .star-rating i {
+            font-size: 14px;
+        }
+
+        .task-item .color-picker {
+            gap: 4px;
+        }
+
+        .task-item .color-option {
+            width: 16px;
+            height: 16px;
         }
 
         .task-item .datetime-label {
@@ -376,13 +408,13 @@
         }
 
         .task-item .timeline-container {
-            grid-column: 1 / -1;
+            width: 100%;
             display: flex;
             align-items: center;
             gap: 10px;
-            padding-top: 6px;
+            padding-top: 10px;
             border-top: 1px solid #eee;
-            margin-top: 2px;
+            margin-top: 8px;
             flex-wrap: wrap;
         }
 
@@ -1581,7 +1613,7 @@
                         </div>
                     </div>
                     
-                    <div class="task-meta-item datetime-item">
+                    <div class="task-meta-item datetime-inline">
                         <span>Start</span>
                         <div class="datetime-row">
                             <input type="date" value="${task.startDate || ''}" 
@@ -1591,7 +1623,7 @@
                         </div>
                     </div>
                     
-                    <div class="task-meta-item datetime-item">
+                    <div class="task-meta-item datetime-inline">
                         <span>Due</span>
                         <div class="datetime-row">
                             <input type="date" value="${task.dueDate || ''}" 
