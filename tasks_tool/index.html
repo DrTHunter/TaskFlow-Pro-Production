@@ -39,10 +39,17 @@
             box-shadow: 0 2px 4px rgba(0,0,0,0.05);
         }
 
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
         .content-title {
             font-size: 18px;
             font-weight: 600;
             color: #333;
+            white-space: nowrap;
         }
 
         .tab-content {
@@ -690,12 +697,11 @@
         .search-container {
             display: flex;
             align-items: center;
+            gap: 10px;
         }
 
         .search-bar {
-            flex-grow: 1;
-            max-width: 400px;
-            margin-left: 10px;
+            width: 250px;
             padding: 8px 12px;
             border: 1px solid #ddd;
             border-radius: 4px;
@@ -971,6 +977,198 @@
             gap: 10px;
         }
 
+        .sort-container {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .sort-container label {
+            font-size: 13px;
+            color: #555;
+            font-weight: 500;
+        }
+
+        .sort-select {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 13px;
+            background-color: white;
+            cursor: pointer;
+            min-width: 160px;
+        }
+
+        .sort-select:focus {
+            outline: none;
+            border-color: #1a73e8;
+            box-shadow: 0 0 0 2px rgba(26, 115, 232, 0.1);
+        }
+
+        .view-toggle-btn {
+            padding: 8px 12px;
+            background-color: #6c757d;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 13px;
+        }
+
+        .view-toggle-btn.active {
+            background-color: #1a73e8;
+        }
+
+        /* Compact Task View */
+        .task-item .compact-view {
+            display: none;
+        }
+
+        .task-item.compact {
+            padding: 10px 14px;
+            margin-bottom: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .task-item.compact:hover {
+            background-color: #f8f9fa;
+            transform: translateX(2px);
+        }
+
+        .task-item.compact .compact-view {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .task-item.compact .full-view {
+            display: none;
+        }
+
+        .task-item.compact .compact-title {
+            font-weight: 600;
+            font-size: 14px;
+            color: #333;
+            flex: 1;
+            min-width: 150px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 300px;
+        }
+
+        .task-item.compact .compact-priority {
+            display: flex;
+            gap: 2px;
+        }
+
+        .task-item.compact .compact-priority i {
+            font-size: 10px;
+            color: #ddd;
+        }
+
+        .task-item.compact .compact-priority i.active {
+            color: #ffc107;
+        }
+
+        .task-item.compact .compact-dates {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 11px;
+            color: #666;
+        }
+
+        .task-item.compact .compact-dates span {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .task-item.compact .compact-dates i {
+            font-size: 10px;
+            color: #888;
+        }
+
+        .task-item.compact .compact-timeline {
+            width: 80px;
+            height: 6px;
+            background-color: #e9edf3;
+            border-radius: 999px;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+
+        .task-item.compact .compact-timeline-progress {
+            height: 100%;
+            border-radius: 999px;
+            transition: width 0.3s ease;
+        }
+
+        .task-item.compact .compact-percent {
+            font-size: 10px;
+            font-weight: 600;
+            color: #1a73e8;
+            min-width: 28px;
+            text-align: right;
+        }
+
+        .task-item.compact .compact-expand-icon {
+            color: #999;
+            font-size: 12px;
+            transition: transform 0.2s;
+        }
+
+        .task-item.compact .task-controls,
+        .task-item.compact .move-buttons {
+            display: none;
+        }
+
+        /* Expanded state within compact mode */
+        .task-item.compact.expanded {
+            padding: 16px;
+            cursor: default;
+        }
+
+        .task-item.compact.expanded .compact-view {
+            display: none;
+        }
+
+        .task-item.compact.expanded .full-view {
+            display: block;
+        }
+
+        .task-item.compact.expanded .task-controls,
+        .task-item.compact.expanded .move-buttons {
+            display: flex;
+        }
+
+        .task-item .collapse-task-btn {
+            display: none;
+            padding: 4px 8px;
+            font-size: 11px;
+            background-color: #e0e0e0;
+            color: #333;
+            border-radius: 4px;
+        }
+
+        .task-item.compact.expanded .collapse-task-btn {
+            display: inline-flex;
+        }
+
+        .compact-subheading {
+            padding: 4px 10px;
+            font-size: 12px;
+            margin: 6px 0;
+        }
+
+        .compact-subheading .subheading-input {
+            font-size: 12px;
+        }
+
         body, .main-content, .tab-content, .task-list {
             overflow: visible !important;
         }
@@ -1034,10 +1232,20 @@
                 gap: 10px;
             }
             
-            .search-bar {
-                max-width: 100%;
-                margin-left: 0;
+            .header-left {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
                 width: 100%;
+            }
+            
+            .search-container {
+                width: 100%;
+            }
+            
+            .search-bar {
+                width: 100%;
+                max-width: none;
             }
         }
     </style>
@@ -1045,14 +1253,16 @@
 <body>
     <div class="main-content">
         <div class="content-header">
-            <div class="content-title">Task Management System</div>
-            <div class="search-container">
-                <input type="text" class="search-bar" id="taskSearch" placeholder="Search tasks..." oninput="searchTasks()">
+            <div class="header-left">
+                <div class="content-title">Task Management System</div>
+                <div class="search-container">
+                    <input type="text" class="search-bar" id="taskSearch" placeholder="Search tasks..." oninput="searchTasks()">
+                </div>
             </div>
         </div>
 
         <div id="tasks" class="tab-content active">
-            <div style="display: flex; align-items: center; margin-bottom: 15px;">
+            <div style="display: flex; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 10px;">
                 <button class="new-item-btn" onclick="toggleInputs('tasks')">
                     <i class="fas fa-plus"></i> New Task
                 </button>
@@ -1066,6 +1276,26 @@
                         Reset All Data
                     </button>
                 </div>
+                
+                <div class="sort-container">
+                    <label for="taskSortSelect"><i class="fas fa-sort"></i> Sort:</label>
+                    <select id="taskSortSelect" class="sort-select" onchange="changeSort(this.value)">
+                        <option value="default">Default (Added Order)</option>
+                        <option value="priority-high">Priority: High to Low</option>
+                        <option value="priority-low">Priority: Low to High</option>
+                        <option value="due-earliest">Due Date: Earliest First</option>
+                        <option value="due-latest">Due Date: Latest First</option>
+                        <option value="start-earliest">Start Date: Earliest First</option>
+                        <option value="start-latest">Start Date: Latest First</option>
+                        <option value="title-az">Title: A to Z</option>
+                        <option value="title-za">Title: Z to A</option>
+                        <option value="color">Color</option>
+                    </select>
+                </div>
+                
+                <button class="view-toggle-btn" id="viewToggleBtn" onclick="toggleViewMode()">
+                    <i class="fas fa-list"></i> <span>Compact</span>
+                </button>
             </div>
             
             <div class="input-section collapsed">
@@ -1171,6 +1401,8 @@
         let taskSubheadings = JSON.parse(localStorage.getItem('taskSubheadings')) || ['General'];
         let collapsedSubheadings = JSON.parse(localStorage.getItem('collapsedSubheadings')) || {};
         let completedTasksCollapsed = JSON.parse(localStorage.getItem('completedTasksCollapsed')) || false;
+        let currentSortMethod = localStorage.getItem('taskSortMethod') || 'default';
+        let compactViewMode = localStorage.getItem('compactViewMode') === 'true';
         let quillInput = null;
         let taskQuillEditors = {};
 
@@ -1351,7 +1583,7 @@
         }
 
         function renderItemsForSubheading(type, subheading, container, index) {
-            let items = tasks.filter(t => t.subheading === subheading);
+            let items = sortTasks(tasks.filter(t => t.subheading === subheading));
             
             if (items.length === 0) return;
             
@@ -1718,15 +1950,67 @@
         function renderTasks() {
             taskQuillEditors = {};
             renderSubheadings('task');
+            updateViewToggleButton();
+        }
+
+        function toggleViewMode() {
+            compactViewMode = !compactViewMode;
+            localStorage.setItem('compactViewMode', compactViewMode);
+            renderTasks();
+        }
+
+        function updateViewToggleButton() {
+            const btn = document.getElementById('viewToggleBtn');
+            if (btn) {
+                if (compactViewMode) {
+                    btn.classList.add('active');
+                    btn.innerHTML = '<i class="fas fa-th-large"></i> <span>Expanded</span>';
+                } else {
+                    btn.classList.remove('active');
+                    btn.innerHTML = '<i class="fas fa-list"></i> <span>Compact</span>';
+                }
+            }
+        }
+
+        function expandTask(taskId, event) {
+            if (event) event.stopPropagation();
+            const taskElement = document.querySelector(`.task-item[data-id="${taskId}"]`);
+            if (taskElement && taskElement.classList.contains('compact')) {
+                taskElement.classList.add('expanded');
+                // Initialize Quill editor if not already done
+                const task = tasks.find(t => t.id === taskId);
+                if (task) {
+                    setTimeout(() => {
+                        initializeTaskQuillEditor(taskId, task.notes || '');
+                    }, 0);
+                }
+            }
+        }
+
+        function collapseTask(taskId, event) {
+            if (event) event.stopPropagation();
+            const taskElement = document.querySelector(`.task-item[data-id="${taskId}"]`);
+            if (taskElement) {
+                taskElement.classList.remove('expanded');
+            }
         }
 
         function createTaskElement(task) {
             const taskElement = document.createElement('div');
-            taskElement.className = `task-item priority-${task.priority} ${task.completed ? 'completed' : ''}`;
+            const isCompact = compactViewMode && !task.completed;
+            taskElement.className = `task-item priority-${task.priority} ${task.completed ? 'completed' : ''} ${isCompact ? 'compact' : ''}`;
             taskElement.setAttribute('data-id', task.id);
             taskElement.style.borderLeftColor = task.color || '#1a73e8';
             taskElement.style.borderLeftWidth = '4px';
             taskElement.style.borderLeftStyle = 'solid';
+            
+            if (isCompact) {
+                taskElement.onclick = (e) => {
+                    if (!taskElement.classList.contains('expanded')) {
+                        expandTask(task.id, e);
+                    }
+                };
+            }
             
             let timelineHTML = '';
             if (task.startDate && task.dueDate) {
@@ -1780,7 +2064,50 @@
                     </div>
                 </div>`;
 
+            // Compact view stars
+            let compactStarsHTML = '';
+            for (let i = 1; i <= 5; i++) {
+                compactStarsHTML += `<i class="fas fa-star ${i <= task.priorityValue ? 'active' : ''}"></i>`;
+            }
+
+            // Compact timeline
+            let compactTimelineHTML = '';
+            if (task.startDate && task.dueDate) {
+                const progress = calculateTimelineProgress(task.startDate, task.dueDate);
+                const progressValue = Math.round(progress.percentage);
+                let progressColor = '#28a745';
+                if (progress.status === 'overdue' || progressValue > 66) {
+                    progressColor = '#dc3545';
+                } else if (progressValue > 33) {
+                    progressColor = '#ffc107';
+                }
+                compactTimelineHTML = `
+                    <div class="compact-timeline">
+                        <div class="compact-timeline-progress" style="width: ${progressValue}%; background: ${progressColor}"></div>
+                    </div>
+                    <span class="compact-percent">${progressValue}%</span>
+                `;
+            }
+
+            // Format compact dates
+            const formatCompactDate = (date) => {
+                if (!date) return '';
+                const d = new Date(date);
+                return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+            };
+
             taskElement.innerHTML = `
+                <div class="compact-view">
+                    <span class="compact-title">${task.title}</span>
+                    <div class="compact-priority">${compactStarsHTML}</div>
+                    <div class="compact-dates">
+                        ${task.startDate ? `<span><i class="fas fa-play"></i> ${formatCompactDate(task.startDate)}</span>` : ''}
+                        ${task.dueDate ? `<span><i class="fas fa-flag"></i> ${formatCompactDate(task.dueDate)}${task.dueTime ? ' ' + task.dueTime : ''}</span>` : ''}
+                    </div>
+                    ${compactTimelineHTML}
+                    <i class="fas fa-chevron-right compact-expand-icon"></i>
+                </div>
+                <div class="full-view">
                 <div class="task-header">
                     <span class="task-title" contenteditable="true" 
                           oninput="updateTaskField(${task.id}, 'title', this.innerText)">
@@ -1854,6 +2181,10 @@
                 <div class="move-buttons">
                     <button onclick="moveTask(${task.id}, 'up')">↑</button>
                     <button onclick="moveTask(${task.id}, 'down')">↓</button>
+                </div>
+                <button class="collapse-task-btn" onclick="collapseTask(${task.id}, event)">
+                    <i class="fas fa-compress-alt"></i> Collapse
+                </button>
                 </div>
             `;
             
@@ -2150,6 +2481,80 @@
 
         function saveTasks() { localStorage.setItem('tasks', JSON.stringify(tasks)); }
 
+        function changeSort(method) {
+            currentSortMethod = method;
+            localStorage.setItem('taskSortMethod', method);
+            renderTasks();
+        }
+
+        function sortTasks(tasksToSort) {
+            if (currentSortMethod === 'default') {
+                return tasksToSort;
+            }
+
+            const sorted = [...tasksToSort];
+
+            switch (currentSortMethod) {
+                case 'priority-high':
+                    sorted.sort((a, b) => (b.priorityValue || 1) - (a.priorityValue || 1));
+                    break;
+                case 'priority-low':
+                    sorted.sort((a, b) => (a.priorityValue || 1) - (b.priorityValue || 1));
+                    break;
+                case 'due-earliest':
+                    sorted.sort((a, b) => {
+                        if (!a.dueDate && !b.dueDate) return 0;
+                        if (!a.dueDate) return 1;
+                        if (!b.dueDate) return -1;
+                        const dateA = new Date(a.dueDate + (a.dueTime ? 'T' + a.dueTime : ''));
+                        const dateB = new Date(b.dueDate + (b.dueTime ? 'T' + b.dueTime : ''));
+                        return dateA - dateB;
+                    });
+                    break;
+                case 'due-latest':
+                    sorted.sort((a, b) => {
+                        if (!a.dueDate && !b.dueDate) return 0;
+                        if (!a.dueDate) return 1;
+                        if (!b.dueDate) return -1;
+                        const dateA = new Date(a.dueDate + (a.dueTime ? 'T' + a.dueTime : ''));
+                        const dateB = new Date(b.dueDate + (b.dueTime ? 'T' + b.dueTime : ''));
+                        return dateB - dateA;
+                    });
+                    break;
+                case 'start-earliest':
+                    sorted.sort((a, b) => {
+                        if (!a.startDate && !b.startDate) return 0;
+                        if (!a.startDate) return 1;
+                        if (!b.startDate) return -1;
+                        const dateA = new Date(a.startDate + (a.startTime ? 'T' + a.startTime : ''));
+                        const dateB = new Date(b.startDate + (b.startTime ? 'T' + b.startTime : ''));
+                        return dateA - dateB;
+                    });
+                    break;
+                case 'start-latest':
+                    sorted.sort((a, b) => {
+                        if (!a.startDate && !b.startDate) return 0;
+                        if (!a.startDate) return 1;
+                        if (!b.startDate) return -1;
+                        const dateA = new Date(a.startDate + (a.startTime ? 'T' + a.startTime : ''));
+                        const dateB = new Date(b.startDate + (b.startTime ? 'T' + b.startTime : ''));
+                        return dateB - dateA;
+                    });
+                    break;
+                case 'title-az':
+                    sorted.sort((a, b) => (a.title || '').localeCompare(b.title || ''));
+                    break;
+                case 'title-za':
+                    sorted.sort((a, b) => (b.title || '').localeCompare(a.title || ''));
+                    break;
+                case 'color':
+                    sorted.sort((a, b) => (a.color || '').localeCompare(b.color || ''));
+                    break;
+            }
+
+            return sorted;
+        }
+
         window.onload = () => {
             setupStarRating();
             initializeInputQuill();
@@ -2160,6 +2565,15 @@
             const now = new Date();
             document.getElementById('taskStartDate').value = now.toISOString().split('T')[0];
             document.getElementById('taskStartTime').value = now.toTimeString().slice(0, 5);
+            
+            // Restore sort selection
+            const sortSelect = document.getElementById('taskSortSelect');
+            if (sortSelect) {
+                sortSelect.value = currentSortMethod;
+            }
+            
+            // Update view toggle button
+            updateViewToggleButton();
             
             document.querySelectorAll('.input-section').forEach(section => {
                 section.classList.add('collapsed');
