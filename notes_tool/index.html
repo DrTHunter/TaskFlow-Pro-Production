@@ -3,9 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Notes Tool</title>
+    <title>Task Management System</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+    <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
     <style>
         * {
             box-sizing: border-box;
@@ -16,20 +17,16 @@
 
         body {
             background-color: #f5f7fa;
-            display: flex;
             height: 100vh;
             overflow: hidden;
         }
 
-        /* Main Content Styles */
         .main-content {
-            flex: 1;
             display: flex;
             flex-direction: column;
             height: 100vh;
             overflow: hidden;
             background-color: white;
-            width: 100%;
         }
 
         .content-header {
@@ -55,49 +52,24 @@
             white-space: nowrap;
         }
 
-        .search-container {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .search-bar {
-            width: 250px;
-            padding: 8px 12px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-size: 13px;
-        }
-
-        .filter-btn {
-            padding: 6px 10px;
-            font-size: 11px;
-            background-color: #6c757d;
-            white-space: nowrap;
-            height: 32px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 4px;
-        }
-
         .tab-content {
             padding: 20px;
             overflow-y: auto;
             flex: 1;
         }
 
-        /* Notes Tab Specific Styles */
         .input-section {
             display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
+            flex-direction: column;
+            gap: 12px;
             margin-bottom: 15px;
             transition: all 0.3s ease;
             overflow: hidden;
-            align-items: flex-end;
-            border-bottom: 1px solid #ddd;
-            padding-bottom: 15px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 20px;
+            background-color: #fff;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
         }
 
         .input-section.collapsed {
@@ -105,11 +77,264 @@
             margin-bottom: 0;
             opacity: 0;
             visibility: hidden;
-            border-bottom: none;
-            padding-bottom: 0;
+            padding: 0;
+            border: none;
         }
 
-        input, textarea {
+        .input-section .task-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 0;
+        }
+
+        .input-section .task-title-input {
+            flex: 1;
+            font-size: 16px;
+            font-weight: 500;
+            padding: 10px 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+        }
+
+        .input-section .task-title-input:focus {
+            outline: none;
+            border-color: #1a73e8;
+            box-shadow: 0 0 0 2px rgba(26, 115, 232, 0.1);
+        }
+
+        .input-section .subheading-selector {
+            margin: 0;
+        }
+
+        .input-section .subheading-selector select {
+            padding: 8px 12px;
+            border-radius: 6px;
+            border: 1px solid #ddd;
+            font-size: 13px;
+            min-width: 200px;
+        }
+
+        .input-section .current-step {
+            width: 100%;
+            min-height: 38px;
+            height: 38px;
+            padding: 10px 12px;
+            border-radius: 6px;
+            font-size: 14px;
+            resize: none;
+            overflow: hidden;
+            line-height: 1.3;
+        }
+
+        .input-section .task-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            padding: 12px;
+            background-color: #f8f9fa;
+            border-radius: 6px;
+            margin: 5px 0;
+            align-items: center;
+        }
+
+        .input-section .task-meta-item {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .input-section .task-meta-item > span {
+            font-weight: 500;
+            color: #555;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .input-section .datetime-row {
+            display: flex;
+            gap: 4px;
+            align-items: center;
+        }
+
+        .input-section .datetime-row input {
+            padding: 5px 6px;
+            border-radius: 4px;
+            font-size: 12px;
+            width: auto;
+        }
+
+        .input-section .datetime-row input[type="time"] {
+            width: auto;
+        }
+
+        .input-section .star-rating {
+            gap: 3px;
+        }
+
+        .input-section .star-rating i {
+            font-size: 14px;
+        }
+
+        .input-section .color-picker {
+            gap: 4px;
+            margin-top: 0;
+        }
+
+        .input-section .color-option {
+            width: 16px;
+            height: 16px;
+        }
+
+        .color-picker-wrapper {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+        }
+
+        .color-more-btn {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 2px solid #ddd;
+            background: conic-gradient(red, yellow, lime, aqua, blue, magenta, red);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            color: white;
+            text-shadow: 0 0 2px rgba(0,0,0,0.5);
+        }
+
+        .color-more-btn:hover {
+            border-color: #999;
+        }
+
+        .color-more-btn.selected {
+            border-color: #000;
+        }
+
+        .color-dropdown {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            z-index: 1000;
+            margin-top: 5px;
+        }
+
+        .color-dropdown.active {
+            display: block;
+        }
+
+        .color-dropdown-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 6px;
+            width: 130px;
+        }
+
+        .color-dropdown .color-option {
+            width: 20px;
+            height: 20px;
+        }
+
+        .custom-color-picker {
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 3px solid transparent;
+            background-image: linear-gradient(white, white), conic-gradient(red, yellow, lime, aqua, blue, magenta, red);
+            background-origin: border-box;
+            background-clip: padding-box, border-box;
+        }
+
+        .custom-color-picker:hover {
+            opacity: 0.8;
+        }
+
+        .custom-color-picker i {
+            color: #666 !important;
+            text-shadow: none;
+        }
+
+        .input-section .datetime-label {
+            font-size: 11px;
+            color: #888;
+        }
+
+        .input-section .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 5px;
+            padding-top: 15px;
+            border-top: 1px solid #eee;
+        }
+
+        .input-section .form-actions button {
+            padding: 10px 20px;
+            font-size: 14px;
+            border-radius: 6px;
+        }
+
+        .input-section .form-actions .btn-primary {
+            background-color: #1a73e8;
+        }
+
+        .input-section .form-actions .btn-secondary {
+            background-color: #6c757d;
+        }
+
+        .wide-input-section {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .wide-input-section .input-group:first-child {
+            flex: 3;
+            min-width: 300px;
+        }
+
+        .wide-input-section .input-group:not(:first-child) {
+            flex: 1;
+            min-width: 150px;
+        }
+
+        .wide-input-section button {
+            margin-left: auto;
+            height: 36px;
+            align-self: center;
+        }
+
+        #taskTitle {
+            margin-top: 15px;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            min-width: 150px;
+        }
+
+        .input-group label {
+            font-size: 12px;
+            margin-bottom: 4px;
+            color: #555;
+        }
+
+        input, select, textarea {
             padding: 8px;
             border: 1px solid #ddd;
             border-radius: 4px;
@@ -133,25 +358,294 @@
             filter: brightness(0.9);
         }
 
-        .note-item {
-            padding: 12px;
-            background-color: white;
-            margin-bottom: 8px;
-            border-radius: 4px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-            position: relative;
+        .task-list {
+            background-color: #f8f9fa;
+            border-radius: 5px;
+            padding: 10px;
+            margin: 0 0 15px 0;
         }
 
-        /* Updated Notes Header and Content Styles */
-        .notes-header {
+        .task-item {
+            padding: 16px;
+            background-color: white;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            position: relative;
+            border: 1px solid #e0e0e0;
+        }
+
+        .task-item .task-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 12px;
+            padding-right: 60px;
+            flex-wrap: wrap;
+        }
+
+        .task-item .task-title {
+            flex: 1;
+            font-weight: 600;
+            font-size: 16px;
+            min-width: 200px;
+            word-wrap: break-word;
+            min-height: 24px;
+            padding: 8px 10px;
+            border: 1px solid transparent;
+            border-radius: 6px;
+            width: auto;
+            background-color: #f8f9fa;
+        }
+
+        .task-item .task-title:hover,
+        .task-item .task-title:focus {
+            border-color: #ddd;
+            background-color: #fff;
+            outline: none;
+        }
+
+        .task-item .complete-checkbox {
+            margin-left: 0;
+        }
+
+        .task-item .subheading-selector {
+            position: static;
+            margin: 0;
+        }
+
+        .task-item .subheading-selector select {
+            padding: 6px 10px;
+            border-radius: 6px;
+            border: 1px solid #ddd;
+            font-size: 13px;
+            min-width: 120px;
+        }
+
+        .task-item .current-step {
+            width: 90%;
+            min-height: 38px;
+            padding: 10px 12px;
+            border-radius: 6px;
+            font-size: 14px;
+            margin: 0 0 12px auto;
+            border: 1px solid #ddd;
+            background-color: #fff;
+        }
+
+        .task-item .current-step:focus {
+            outline: none;
+            border-color: #1a73e8;
+            box-shadow: 0 0 0 2px rgba(26, 115, 232, 0.1);
+        }
+
+        .task-item .task-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            padding: 12px;
+            background-color: #f8f9fa;
+            border-radius: 6px;
+            margin: 0;
+            font-size: 13px;
+            align-items: center;
+        }
+
+        .task-item .task-meta-item {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .task-item .task-meta-item.datetime-inline {
+            flex-direction: row;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .task-item .task-meta-item.datetime-inline > span:first-child {
+            min-width: auto;
+        }
+
+        .task-item .task-meta-item > span:first-child {
+            font-weight: 500;
+            color: #555;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .task-item .datetime-row {
+            display: flex;
+            gap: 4px;
+            align-items: center;
+            flex-wrap: nowrap;
+        }
+
+        .task-item .datetime-row input {
+            padding: 5px 6px;
+            border-radius: 4px;
+            font-size: 12px;
+            border: 1px solid #ddd;
+            width: auto;
+        }
+
+        .task-item .datetime-row input[type="time"] {
+            width: auto;
+        }
+
+        .task-item .star-rating {
+            gap: 3px;
+        }
+
+        .task-item .star-rating i {
+            font-size: 14px;
+        }
+
+        .task-item .color-picker {
+            gap: 4px;
+        }
+
+        .task-item .color-option {
+            width: 16px;
+            height: 16px;
+        }
+
+        .task-item .datetime-label {
+            font-size: 10px;
+            color: #888;
+        }
+
+        .task-item .timeline-container {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding-top: 10px;
+            border-top: 1px solid #eee;
+            margin-top: 8px;
+            flex-wrap: wrap;
+        }
+
+        .priority-high { border-left: 4px solid #dc3545; }
+        .priority-medium { border-left: 4px solid #ffc107; }
+        .priority-low { border-left: 4px solid #28a745; }
+
+        .completed {
+            opacity: 0.7;
+            background-color: #f8f9fa;
+        }
+
+        .task-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .task-title {
+            font-weight: bold;
+            flex-grow: 0;
+            min-width: 200px;
+            word-wrap: break-word;
+            min-height: 20px;
+            padding: 5px;
+            border: none;
+            border-radius: 4px;
+            width: 65%;
+        }
+
+        .complete-checkbox {
             display: flex;
             align-items: center;
             gap: 8px;
-            margin: 12px 0;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        .complete-checkbox input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+
+        .complete-checkbox-label {
+            font-size: 13px;
+            color: #555;
+        }
+
+        .current-step {
+            margin-top: 5px;
+            width: 65%;
+            min-height: 40px;
+            max-height: 200px;
+            padding: 5px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            resize: none;
+            font-size: 13px;
+            line-height: 1.4;
+            overflow-y: hidden;
+            word-wrap: break-word;
+        }
+
+        .task-meta {
+            display: flex;
+            gap: 10px;
+            margin-top: 8px;
+            font-size: 0.85em;
+            color: #666;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .task-meta-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .datetime-item {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .datetime-row {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+        }
+
+        .datetime-label {
+            font-size: 10px;
+            color: #888;
+        }
+
+        .notes-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            margin: 10px 0;
+            padding: 8px;
             cursor: pointer;
             color: #1a73e8;
             font-size: 0.9em;
+            background-color: #f8f9fa;
+            border-radius: 4px;
             user-select: none;
+        }
+
+        .notes-header::after {
+            content: '▼';
+            font-size: 0.7em;
+            transition: transform 0.3s;
+        }
+
+        .notes-header.expanded::after {
+            transform: rotate(180deg);
         }
 
         .notes-content {
@@ -161,88 +655,57 @@
         }
 
         .notes-content.expanded {
-            max-height: none;
+            max-height: 1000px;
+            padding-top: 10px;
         }
 
-        /* Quill editor styles for input only */
-        .ql-container {
-            border: 1px solid #ddd !important;
-            border-radius: 4px;
-            font-family: inherit;
-            font-size: 13px;
-            min-height: 120px;
-        }
-
-        .ql-editor {
-            min-height: 120px;
-            padding: 8px;
-        }
-
-        .ql-toolbar {
-            border: 1px solid #ddd !important;
-            border-radius: 4px 4px 0 0;
-            background-color: #f8f9fa;
-        }
-
-        .ql-container.ql-snow {
-            border-top: 1px solid #ddd !important;
-        }
-
-        /* Auto-growing Quill editor */
-        .auto-growing-quill {
-            width: 100%;
-            margin-bottom: 15px;
-        }
-
-        .auto-growing-quill .ql-container {
-            height: auto !important;
-        }
-
-        .auto-growing-quill .ql-editor {
-            overflow-y: visible !important;
-        }
-
-        .note-content[contenteditable="true"] {
-            outline: none;
-        }
-
-        .note-content[contenteditable="true"]:empty:before {
-            content: attr(placeholder);
-            color: #999;
-            pointer-events: none;
-            display: block;
-        }
-
-        .note-content[contenteditable="true"]:focus {
-            border-color: #1a73e8;
-            box-shadow: 0 0 0 1px #1a73e8;
+        .task-controls {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            display: flex;
+            gap: 8px;
+            align-items: center;
         }
 
         .delete-btn {
             background-color: #dc3545;
             padding: 6px 12px;
-            height: 34px;     /* Match dropdown height */
+            border-radius: 6px;
         }
 
         .move-buttons {
             position: absolute;
-            top: 50px;
-            right: 12px;
+            top: 55px;
+            right: 16px;
             display: flex;
             gap: 5px;
         }
 
+        .move-buttons button {
+            padding: 4px 10px;
+            font-size: 12px;
+            border-radius: 4px;
+            background-color: #e0e0e0;
+            color: #333;
+        }
+
+        .move-buttons button:hover {
+            background-color: #d0d0d0;
+        }
+
         .search-container {
-            display: inline-flex;
-            flex-grow: 1;
-            margin-bottom: 0;
+            display: flex;
             align-items: center;
+            gap: 10px;
         }
 
         .search-bar {
-            flex-grow: 1;
-            max-width: 400px;
-            margin-left: 10px;
+            width: 250px;
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 13px;
         }
 
         .notes-container {
@@ -250,6 +713,98 @@
             margin-top: 15px;
         }
         
+        .large-notes {
+            width: 100%;
+            min-height: 150px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            resize: none;
+            font-size: 14px;
+            line-height: 1.4;
+            overflow-y: hidden;
+            word-wrap: break-word;
+        }
+
+        .quill-editor {
+            min-height: 150px;
+        }
+
+        .quill-editor .ql-editor {
+            min-height: 120px;
+        }
+
+        .notes-content .ql-container {
+            border-radius: 6px;
+        }
+
+        .star-rating {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .star-rating i {
+            color: #ddd;
+            cursor: pointer;
+            font-size: 18px;
+            transition: color 0.2s;
+        }
+
+        .star-rating i.active {
+            color: #ffc107;
+        }
+
+        .timeline-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            width: 100%;
+        }
+
+        .timeline-bar {
+            flex: 1;
+            height: 10px;
+            background-color: #e9edf3;
+            border-radius: 999px;
+            overflow: hidden;
+            position: relative;
+            box-shadow: inset 0 1px 2px rgba(0,0,0,0.08);
+        }
+
+        .timeline-progress {
+            height: 100%;
+            border-radius: 999px;
+            transition: width 0.5s ease, background-color 0.5s ease;
+            background: linear-gradient(90deg, #4dabf7, #1a73e8);
+        }
+
+        .timeline-dates {
+            font-size: 11px;
+            color: #666;
+            min-width: 120px;
+            text-align: right;
+        }
+
+        .timeline-percent {
+            font-size: 12px;
+            font-weight: 600;
+            color: #1a73e8;
+            min-width: 40px;
+            text-align: right;
+        }
+
+        .task-item .color-picker {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
+        .task-item .color-option {
+            width: 18px;
+            height: 18px;
+        }
+
         .subheading {
             background-color: #e0e0e0;
             padding: 5px 10px;
@@ -283,29 +838,10 @@
             margin-left: 10px;
         }
 
-        .note-subheading-selector {
+        .subheading-selector {
             position: absolute;
-            right: 53px;
+            right: 50px;
             top: 12px;
-        }
-
-        .note-subheading-selector select {
-            height: 34px !important;
-            min-height: 34px;
-            line-height: 34px;
-            font-size: 13px;
-            padding: 0 8px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            box-sizing: border-box;
-            -webkit-appearance: none;
-            -moz-appearance: none;
-            appearance: none;
-            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23333'%3e%3cpath d='M7 10l5 5 5-5z'/%3e%3c/svg%3e");
-            background-repeat: no-repeat;
-            background-position: right 8px center;
-            background-size: 16px;
-            padding-right: 28px;
         }
 
         .new-item-btn {
@@ -314,10 +850,11 @@
             padding: 8px 15px;
             font-size: 13px;
             background-color: #28a745;
-            height: 36px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+        }
+
+        .reset-btn {
+            background-color: #dc3545;
+            margin-top: 15px;
         }
 
         .new-subheading-bar {
@@ -354,158 +891,149 @@
             max-height: 0;
         }
 
-        .note-header {
+        .settings-menu {
+            display: none;
+            position: absolute;
+            right: 10px;
+            top: 50px;
+            background-color: white;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            z-index: 100;
+        }
+
+        .settings-menu.active {
+            display: block;
+        }
+
+        .color-picker {
+            display: flex;
+            gap: 5px;
+            margin-top: 5px;
+        }
+
+        .color-option {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 2px solid transparent;
+        }
+
+        .color-option.selected {
+            border-color: #000;
+        }
+
+        .subheading-controls {
+            gap: 8px !important;
+            margin-left: 15px !important;
+        }
+
+        .new-subheading-bar button {
+            height: 30px !important;
+            padding: 0 10px !important;
+            line-height: 30px !important;
+        }
+
+        .completed-section {
+            margin-top: 20px;
+        }
+
+        .completed-header {
+            background-color: #e0e0e0;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-weight: bold;
+            cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            margin-bottom: 10px;
-            position: relative;
-            width: 100%;
-            min-height: 34px;
         }
 
-        .task-controls {
-            position: absolute;
-            right: 0;
-            top: 0;
+        .completed-header i {
+            transition: transform 0.3s;
         }
 
-        .note-title {
-            font-weight: bold;
-            font-size: 16px;
-            max-width: 80%; 
-            margin-right: 20px;
+        .completed-header.collapsed i {
+            transform: rotate(-90deg);
+        }
+
+        .completed-content {
+            max-height: 1000px;
             overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-            height: 34px;
-            line-height: 34px;
-            padding: 0 8px;
-            border: 1px solid transparent;
-            box-sizing: border-box;
-            display: inline-block;
-            vertical-align: middle;
+            transition: max-height 0.3s ease;
         }
 
-        .note-date {
-            font-size: 14px;
-            color: #666;
-            margin-left: 10px;
-            white-space: nowrap;
-            cursor: pointer;
-            padding: 2px 5px;
-            border-radius: 4px;
+        .completed-content.collapsed {
+            max-height: 0;
         }
 
-        .note-date:hover {
-            background-color: #f0f0f0;
-        }
-
-        .note-date-input {
-            width: 150px !important;
-            display: none;
-            margin-left: 10px;
-            padding: 2px 5px !important;
-            height: 24px !important;
-            line-height: 24px !important;
-            border: 1px solid #ddd !important;
-            border-radius: 4px !important;
-        }
-
-        .note-title-input-container {
+        .controls-bar {
             display: flex;
             align-items: center;
-            width: 100%;
+            margin: 0 0 15px 0;
             gap: 10px;
         }
 
-        .note-title-input {
-            width: 50% !important;
-        }
-
-        .note-date-input {
-            width: 150px !important;
-        }
-
-        /* Note content Quill editor styles */
-        .note-quill-container {
-            width: 100%;
-            margin-bottom: 15px;
-        }
-
-        .note-quill-container .ql-container {
-            border: 1px solid #ddd !important;
-            border-radius: 4px;
-            font-family: inherit;
-            font-size: 13px;
-        }
-
-        .note-quill-container .ql-editor {
-            min-height: 100px;
-            padding: 8px;
-            overflow-y: visible;
-        }
-
-        .note-quill-container .ql-toolbar {
-            border: 1px solid #ddd !important;
-            border-radius: 4px 4px 0 0;
-            background-color: #f8f9fa;
-        }
-
-        .note-quill-container .ql-container.ql-snow {
-            border-top: 1px solid #ddd !important;
+        body, .main-content, .tab-content, .task-list {
+            overflow: visible !important;
         }
 
         @media (max-width: 768px) {
-            body {
-                flex-direction: column;
-                height: auto;
-            }
-            
             .main-content {
                 height: auto;
-            }
-
-            .tab-button {
-                flex: 1;
-                padding: 10px;
-                font-size: 12px;
             }
             
             .input-section {
                 flex-direction: column;
             }
             
+            .wide-input-section .input-group:first-child,
+            .wide-input-section .input-group:not(:first-child) {
+                flex: 1 0 100%;
+                min-width: 100%;
+            }
+            
+            .wide-input-section button {
+                margin-left: 0;
+                width: 100%;
+            }
+            
+            .task-meta {
+                flex-direction: column;
+                gap: 5px;
+            }
+            
             button {
                 padding: 6px 12px;
             }
 
-            .note-subheading-selector {
+            .subheading-selector {
                 position: static;
                 margin-top: 5px;
                 width: 100%;
             }
-
-            .note-title-input {
+            
+            .task-title {
                 width: 100% !important;
             }
-
-            .note-header {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-
-            .task-controls {
-                position: static;
+            
+            .complete-checkbox {
+                margin-left: 0;
                 margin-top: 10px;
-                align-self: flex-end;
+                width: 100%;
             }
-
-            .note-title {
-                margin-right: 0;
-                white-space: normal;
+            
+            .current-step {
+                width: 100% !important;
             }
-
+            
+            .controls-bar {
+                flex-wrap: wrap;
+            }
+            
             .content-header {
                 flex-direction: column;
                 align-items: flex-start;
@@ -532,149 +1060,324 @@
 </head>
 <body>
     <div class="main-content">
-        <!-- Notes Header (Updated to match Contacts) -->
         <div class="content-header">
             <div class="header-left">
-                <div class="content-title">Notes</div>
+                <div class="content-title">Task Management System</div>
                 <div class="search-container">
-                    <input type="text" class="search-bar" id="noteSearch" placeholder="Search notes..." oninput="searchNotes()">
+                    <input type="text" class="search-bar" id="taskSearch" placeholder="Search tasks..." oninput="searchTasks()">
                 </div>
             </div>
         </div>
 
-        <!-- Notes Tab Content -->
-        <div class="tab-content">
+        <div id="tasks" class="tab-content active">
             <div style="display: flex; align-items: center; margin-bottom: 15px;">
-                <button class="new-item-btn" onclick="toggleInputs('notes')">
-                    <i class="fas fa-plus"></i> New Note
+                <button class="new-item-btn" onclick="toggleInputs('tasks')">
+                    <i class="fas fa-plus"></i> New Task
                 </button>
+                
+                <button class="settings-button" onclick="toggleSettingsMenu()">
+                    <i class="fas fa-cog"></i> Settings
+                </button>
+                
+                <div class="settings-menu" id="settingsMenu">
+                    <button class="reset-btn" onclick="resetAllData()">
+                        Reset All Data
+                    </button>
+                </div>
             </div>
             
             <div class="input-section collapsed">
-                <div class="note-title-input-container">
-                    <input type="text" id="noteTitle" class="note-title-input" placeholder="Note title">
-                    <input type="date" id="noteDate" class="note-date-input">
-                    <button onclick="addNote()">Add Note</button>
+                <div class="task-header">
+                    <input type="text" id="taskTitle" placeholder="Task title" class="task-title-input">
+                    <div class="complete-checkbox">
+                        <input type="checkbox" id="newTaskComplete" disabled>
+                        <label for="newTaskComplete" class="complete-checkbox-label">Complete</label>
+                    </div>
                 </div>
                 
-                <div class="notes-container">
-                    <div id="noteContent" class="auto-growing-quill"></div>
+                <div class="subheading-selector">
+                    <select id="newTaskSubheadingSelect">
+                        <option value="">Select subheading</option>
+                    </select>
+                </div>
+                
+                <textarea class="current-step" id="newTaskCurrentStep" placeholder="What's the current step for this task?" oninput="autoResizeTextarea(this)"></textarea>
+                
+                <div class="task-meta">
+                    <div class="task-meta-item">
+                        <span>Priority</span>
+                        <div class="star-rating" id="priorityStars">
+                            <i class="fas fa-star" data-value="1"></i>
+                            <i class="fas fa-star" data-value="2"></i>
+                            <i class="fas fa-star" data-value="3"></i>
+                            <i class="fas fa-star" data-value="4"></i>
+                            <i class="fas fa-star" data-value="5"></i>
+                        </div>
+                    </div>
+                    
+                    <div class="task-meta-item">
+                        <span>Start</span>
+                        <div class="datetime-row">
+                            <input type="date" id="taskStartDate">
+                            <input type="time" id="taskStartTime">
+                        </div>
+                    </div>
+                    
+                    <div class="task-meta-item">
+                        <span>Due</span>
+                        <div class="datetime-row">
+                            <input type="date" id="taskDueDate">
+                            <input type="time" id="taskDueTime">
+                        </div>
+                    </div>
+                    
+                    <div class="task-meta-item">
+                        <span>Color</span>
+                        <div class="color-picker" id="taskColorPicker">
+                            <div class="color-option selected" style="background-color: #FF0000;" data-color="#FF0000"></div>
+                            <div class="color-option" style="background-color: #FF6600;" data-color="#FF6600"></div>
+                            <div class="color-option" style="background-color: #FFFF00;" data-color="#FFFF00"></div>
+                            <div class="color-option" style="background-color: #39FF14;" data-color="#39FF14"></div>
+                            <div class="color-option" style="background-color: #0000FF;" data-color="#0000FF"></div>
+                            <div class="color-picker-wrapper">
+                                <div class="color-more-btn" onclick="toggleColorDropdown(event, 'inputColorDropdown')" title="More colors">+</div>
+                                <div class="color-dropdown" id="inputColorDropdown">
+                                    <div class="color-dropdown-grid" id="inputColorGrid"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="notes-header" onclick="toggleNewTaskNotes(this)">
+                    Notes
+                </div>
+                <div class="notes-content">
+                    <div id="taskNotesEditor" class="quill-editor"></div>
+                </div>
+                
+                <div class="form-actions">
+                    <button onclick="clearTaskForm()" class="btn-secondary">Clear</button>
+                    <button onclick="addTask()" class="btn-primary">Add Task</button>
                 </div>
             </div>
-            
+
             <div class="new-subheading-bar">
-                <input type="text" id="newNoteSubheading" class="new-subheading-input" placeholder="New subheading name">
-                <button onclick="addSubheading('note')">Add</button>
+                <input type="text" id="newTaskSubheading" class="new-subheading-input" placeholder="New subheading name">
+                <button onclick="addSubheading('task')">Add</button>
             </div>
-            
-            <div id="notesList"></div>
+
+            <div class="task-list" id="tasksList">
+                <h3 class="current-header">Current Tasks</h3>
+                <div id="currentList"></div>
+                
+                <div class="completed-section">
+                    <div class="completed-header" onclick="toggleCompletedTasks()">
+                        <span>Completed Tasks</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="completed-content" id="doneList"></div>
+                </div>
+            </div>
         </div>
     </div>
 
-    <!-- Add Quill library -->
-    <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
     <script>
-        // Initialize Quill editor for the input only
-        let quill = new Quill('#noteContent', {
-            theme: 'snow',
-            placeholder: 'Enter note here...',
-            modules: {
-                toolbar: [
-                    ['bold', 'italic', 'underline', 'strike'],
-                    ['blockquote', 'code-block'],
-                    [{ 'header': 1 }, { 'header': 2 }],
-                    [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-                    [{ 'script': 'sub'}, { 'script': 'super' }],
-                    [{ 'indent': '-1'}, { 'indent': '+1' }],
-                    [{ 'direction': 'rtl' }],
-                    [{ 'size': ['small', false, 'large', 'huge'] }],
-                    [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
-                    [{ 'color': [] }, { 'background': [] }],
-                    [{ 'font': [] }],
-                    [{ 'align': [] }],
-                    ['clean'],
-                    ['link', 'image', 'video']
-                ]
-            }
-        });
+        let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+        let selectedPriority = 1;
+        let selectedColor = '#FF073A';
+        let taskSubheadings = JSON.parse(localStorage.getItem('taskSubheadings')) || ['General'];
+        let collapsedSubheadings = JSON.parse(localStorage.getItem('collapsedSubheadings')) || {};
+        let completedTasksCollapsed = JSON.parse(localStorage.getItem('completedTasksCollapsed')) || false;
+        let quillInput = null;
+        let taskQuillEditors = {};
 
-        // Make Quill editor auto-growing
-        function adjustEditorHeight() {
-            const editor = document.querySelector('#noteContent .ql-editor');
-            if (editor) {
-                editor.style.height = 'auto';
-                editor.style.height = (editor.scrollHeight) + 'px';
+        function autoResizeTextarea(textarea) {
+            textarea.style.height = 'auto';
+            textarea.style.height = (textarea.scrollHeight) + 'px';
+        }
+
+        function autoResizeNotes(textarea) {
+            textarea.style.height = 'auto';
+            textarea.style.height = textarea.scrollHeight + 'px';
+        }
+
+        function stripHtml(value) {
+            if (!value) return '';
+            const div = document.createElement('div');
+            div.innerHTML = value;
+            return (div.textContent || '').trim();
+        }
+
+        function getQuillHTML(instance) {
+            if (!instance) return '';
+            const plain = instance.getText().trim();
+            if (!plain) return '';
+            return instance.root.innerHTML;
+        }
+
+        function initializeInputQuill() {
+            const target = document.getElementById('taskNotesEditor');
+            if (!target) return;
+            quillInput = new Quill('#taskNotesEditor', {
+                theme: 'snow',
+                placeholder: 'Add any additional notes here...',
+                modules: {
+                    toolbar: [
+                        ['bold', 'italic', 'underline', 'strike'],
+                        ['blockquote', 'code-block'],
+                        [{ 'header': 1 }, { 'header': 2 }],
+                        [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                        [{ 'script': 'sub'}, { 'script': 'super' }],
+                        [{ 'indent': '-1'}, { 'indent': '+1' }],
+                        [{ 'direction': 'rtl' }],
+                        [{ 'size': ['small', false, 'large', 'huge'] }],
+                        [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
+                        [{ 'color': [] }, { 'background': [] }],
+                        [{ 'font': [] }],
+                        [{ 'align': [] }],
+                        ['clean'],
+                        ['link', 'image', 'video']
+                    ]
+                }
+            });
+        }
+
+        function initializeTaskQuillEditor(taskId, content) {
+            const selector = `#task-notes-editor-${taskId}`;
+            const target = document.querySelector(selector);
+            if (!target || taskQuillEditors[taskId]) return;
+
+            const editor = new Quill(selector, {
+                theme: 'snow',
+                placeholder: 'Add notes...',
+                modules: {
+                    toolbar: [
+                        ['bold', 'italic', 'underline', 'strike'],
+                        ['blockquote', 'code-block'],
+                        [{ 'header': 1 }, { 'header': 2 }],
+                        [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                        [{ 'script': 'sub'}, { 'script': 'super' }],
+                        [{ 'indent': '-1'}, { 'indent': '+1' }],
+                        [{ 'direction': 'rtl' }],
+                        [{ 'size': ['small', false, 'large', 'huge'] }],
+                        [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
+                        [{ 'color': [] }, { 'background': [] }],
+                        [{ 'font': [] }],
+                        [{ 'align': [] }],
+                        ['clean'],
+                        ['link', 'image', 'video']
+                    ]
+                }
+            });
+
+            const initialContent = content || '';
+            if (initialContent) {
+                editor.clipboard.dangerouslyPasteHTML(initialContent);
+            }
+
+            editor.on('text-change', () => {
+                const html = getQuillHTML(editor);
+                updateTaskField(taskId, 'notes', html);
+            });
+
+            taskQuillEditors[taskId] = editor;
+        }
+
+        function initAutoResize() {
+            const currentStepTextarea = document.getElementById('newTaskCurrentStep');
+            if (currentStepTextarea) {
+                autoResizeTextarea(currentStepTextarea);
             }
         }
 
-        // Listen for text changes to adjust height
-        quill.on('text-change', function() {
-            adjustEditorHeight();
-        });
+        function toggleSettingsMenu() {
+            const menu = document.getElementById('settingsMenu');
+            menu.classList.toggle('active');
+        }
 
-        // Initial height adjustment
-        window.addEventListener('load', adjustEditorHeight);
-
-        // Store all note Quill instances
-        const noteQuills = {};
-
-        // Notes Tab Functionality
-        // Data Management
-        let notes = JSON.parse(localStorage.getItem('notes')) || [];
-        let noteSubheadings = JSON.parse(localStorage.getItem('noteSubheadings')) || ['General'];
-        let collapsedSubheadings = JSON.parse(localStorage.getItem('collapsedSubheadings')) || {};
-
-        // Toggle input sections
         function toggleInputs(tab) {
-            const inputSection = document.querySelector(`.input-section`);
-            const toggleBtn = document.querySelector(`.new-item-btn`);
+            const inputSection = document.querySelector(`#${tab} .input-section`);
+            const toggleBtn = document.querySelector(`#${tab} .new-item-btn`);
             
             inputSection.classList.toggle('collapsed');
             
             if (inputSection.classList.contains('collapsed')) {
-                toggleBtn.innerHTML = '<i class="fas fa-plus"></i> New Note';
+                toggleBtn.innerHTML = '<i class="fas fa-plus"></i> New Task';
             } else {
                 toggleBtn.innerHTML = 'Hide Form';
-                // Focus on title input when form is shown
-                document.getElementById('noteTitle').focus();
-                // Adjust editor height when form is shown
-                setTimeout(adjustEditorHeight, 100);
+                if (quillInput) {
+                    setTimeout(() => quillInput.focus(), 0);
+                }
             }
         }
 
-        function saveNotes() { 
-            localStorage.setItem('notes', JSON.stringify(notes)); 
-            localStorage.setItem('noteSubheadings', JSON.stringify(noteSubheadings));
-            localStorage.setItem('collapsedSubheadings', JSON.stringify(collapsedSubheadings));
+        function toggleCompletedTasks() {
+            const doneList = document.querySelector('.completed-content');
+            const header = document.querySelector('.completed-header');
+            
+            doneList.classList.toggle('collapsed');
+            header.classList.toggle('collapsed');
+            
+            completedTasksCollapsed = !completedTasksCollapsed;
+            localStorage.setItem('completedTasksCollapsed', JSON.stringify(completedTasksCollapsed));
         }
 
-        // Subheading functions
+        function resetAllData() {
+            if (confirm('Are you sure you want to delete ALL data? This cannot be undone.')) {
+                localStorage.clear();
+                tasks = [];
+                taskSubheadings = ['General'];
+                collapsedSubheadings = {};
+                completedTasksCollapsed = false;
+                
+                saveAllData();
+                renderTasks();
+            }
+        }
+
+        function saveAllData() {
+            localStorage.setItem('tasks', JSON.stringify(tasks));
+            localStorage.setItem('taskSubheadings', JSON.stringify(taskSubheadings));
+            localStorage.setItem('collapsedSubheadings', JSON.stringify(collapsedSubheadings));
+            localStorage.setItem('completedTasksCollapsed', JSON.stringify(completedTasksCollapsed));
+        }
+
         function renderSubheadings(type) {
-            const listContainer = document.getElementById('notesList');
-            const subheadings = noteSubheadings;
+            const listContainer = document.getElementById('tasksList');
             
-            // Clear the container
-            listContainer.innerHTML = '';
+            listContainer.innerHTML = `
+                <h3 class="current-header">Current Tasks</h3>
+                <div id="currentList"></div>
+                <div class="completed-section">
+                    <div class="completed-header" onclick="toggleCompletedTasks()">
+                        <span>Completed Tasks</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="completed-content" id="doneList"></div>
+                </div>
+            `;
             
-            subheadings.forEach((subheading, index) => {
-                // Render items for this subheading in the list container
+            if (completedTasksCollapsed) {
+                document.querySelector('.completed-content').classList.add('collapsed');
+                document.querySelector('.completed-header').classList.add('collapsed');
+            }
+            
+            taskSubheadings.forEach((subheading, index) => {
                 renderItemsForSubheading(type, subheading, listContainer, index);
             });
         }
 
         function renderItemsForSubheading(type, subheading, container, index) {
-            let items = notes.filter(n => n.subheading === subheading);
+            let items = tasks.filter(t => t.subheading === subheading);
             
             if (items.length === 0) return;
             
-            // Check if this subheading is collapsed
             const isCollapsed = collapsedSubheadings[`${type}-${subheading}`] || false;
             
-            // Add subheading label
             const subheadingElement = document.createElement('div');
             subheadingElement.className = 'subheading';
             subheadingElement.onclick = (e) => {
-                // Don't toggle if clicking on controls
                 if (e.target.closest('.subheading-controls')) return;
                 
                 const key = `${type}-${subheading}`;
@@ -710,7 +1413,7 @@
                 e.stopPropagation();
                 moveSubheading(type, index, 'down');
             };
-            downBtn.disabled = index === noteSubheadings.length - 1;
+            downBtn.disabled = index === taskSubheadings.length - 1;
             
             const removeBtn = document.createElement('button');
             removeBtn.innerHTML = '×';
@@ -720,7 +1423,7 @@
                 e.stopPropagation();
                 removeSubheading(type, index);
             };
-            removeBtn.disabled = noteSubheadings.length <= 1;
+            removeBtn.disabled = taskSubheadings.length <= 1;
             
             controls.appendChild(upBtn);
             controls.appendChild(downBtn);
@@ -729,178 +1432,76 @@
             subheadingElement.appendChild(input);
             subheadingElement.appendChild(controls);
             
-            // Create content container
             const contentContainer = document.createElement('div');
             contentContainer.className = `collapsible-content ${isCollapsed ? 'collapsed' : ''}`;
             
-            // For notes
-            container.appendChild(subheadingElement);
-            container.appendChild(contentContainer);
+            const currentItems = items.filter(t => !t.completed);
+            const completedItems = items.filter(t => t.completed);
             
-            // Add items
-            items.forEach(note => {
-                const element = createNoteElement(note);
-                contentContainer.appendChild(element);
-            });
-        }
-
-        function createNoteElement(note) {
-            const noteElement = document.createElement('div');
-            noteElement.className = 'note-item';
-            noteElement.setAttribute('data-id', note.id);
-            
-            // Subheading selector
-            const subheadingOptions = noteSubheadings.map(sh => 
-                `<option value="${sh}" ${note.subheading === sh ? 'selected' : ''}>${sh}</option>`
-            ).join('');
-
-            noteElement.innerHTML = `
-                <div class="note-header">
-                    <div style="display: flex; align-items: center; flex-grow: 1;">
-                        <span class="note-title" contenteditable="true" 
-                              oninput="updateNoteField(${note.id}, 'title', this.innerText)">
-                            ${note.title}
-                        </span>
-                        <span class="note-date" onclick="makeDateEditable(${note.id}, this)">
-                            ${note.date ? formatDate(note.date) : 'No date'}
-                        </span>
-                        <input type="date" id="date-input-${note.id}" class="note-date-input" 
-                               style="display: none;" onchange="updateNoteDate(${note.id}, this.value)">
-                    </div>
-                    <div class="task-controls">
-                        <button class="delete-btn" onclick="confirmDelete('note', ${note.id})">
-                            <i class="fas fa-trash"></i>
-                        </button>
-                    </div>
-                </div>
-                <div class="note-subheading-selector">
-                    <select onchange="updateNoteField(${note.id}, 'subheading', this.value)">
-                        ${subheadingOptions}
-                    </select>
-                </div>
-                <div class="notes-header" onclick="toggleNotes(this)">
-                    Content
-                </div>
-                <div class="notes-content">
-                    <div id="note-editor-${note.id}" class="note-quill-container"></div>
-                </div>
-                <div class="move-buttons">
-                    <button onclick="moveNote(${note.id}, 'up')">↑</button>
-                    <button onclick="moveNote(${note.id}, 'down')">↓</button>
-                </div>
-            `;
-            
-            // Initialize Quill editor for this note's content
-            setTimeout(() => {
-                const editorContainer = noteElement.querySelector(`#note-editor-${note.id}`);
+            if (currentItems.length > 0) {
+                const currentContainer = document.getElementById('currentList');
+                currentContainer.appendChild(subheadingElement.cloneNode(true));
+                const currentContent = document.createElement('div');
+                currentContent.className = `collapsible-content ${isCollapsed ? 'collapsed' : ''}`;
                 
-                // Clean up any existing Quill instance
-                if (noteQuills[note.id]) {
-                    noteQuills[note.id] = null;
-                }
-                
-                // Create new Quill instance
-                const quill = new Quill(editorContainer, {
-                    theme: 'snow',
-                    modules: {
-                        toolbar: [
-                            ['bold', 'italic', 'underline', 'strike'],
-                            ['blockquote', 'code-block'],
-                            [{ 'header': 1 }, { 'header': 2 }],
-                            [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-                            [{ 'script': 'sub'}, { 'script': 'super' }],
-                            [{ 'indent': '-1'}, { 'indent': '+1' }],
-                            [{ 'direction': 'rtl' }],
-                            [{ 'size': ['small', false, 'large', 'huge'] }],
-                            [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
-                            [{ 'color': [] }, { 'background': [] }],
-                            [{ 'font': [] }],
-                            [{ 'align': [] }],
-                            ['clean'],
-                            ['link', 'image', 'video']
-                        ]
-                    }
+                currentItems.forEach(task => {
+                    const taskElement = createTaskElement(task);
+                    currentContent.appendChild(taskElement);
                 });
                 
-                // Set the content
-                quill.root.innerHTML = note.content || '';
-                
-                // Make it auto-expanding
-                const editor = quill.root;
-                editor.style.height = 'auto';
-                editor.style.height = (editor.scrollHeight) + 'px';
-                
-                // Update note content when editor changes
-                quill.on('text-change', function() {
-                    updateNoteField(note.id, 'content', quill.root.innerHTML);
+                currentContainer.appendChild(currentContent);
+            }
+            
+            if (completedItems.length > 0) {
+                const completedHeader = document.createElement('div');
+                completedHeader.className = 'subheading';
+                completedHeader.textContent = `${subheading} - Completed`;
+                completedHeader.onclick = (e) => {
+                    if (e.target.closest('.subheading-controls')) return;
+                    const key = `${type}-${subheading}-completed`;
+                    collapsedSubheadings[key] = !collapsedSubheadings[key];
+                    localStorage.setItem('collapsedSubheadings', JSON.stringify(collapsedSubheadings));
                     
-                    // Adjust height
-                    editor.style.height = 'auto';
-                    editor.style.height = (editor.scrollHeight) + 'px';
+                    const content = completedHeader.nextElementSibling;
+                    content.classList.toggle('collapsed');
+                };
+                
+                document.getElementById('doneList').appendChild(completedHeader);
+                const completedContent = document.createElement('div');
+                completedContent.className = `collapsible-content ${collapsedSubheadings[`${type}-${subheading}-completed`] ? 'collapsed' : ''}`;
+                
+                completedItems.forEach(task => {
+                    const taskElement = createTaskElement(task);
+                    completedContent.appendChild(taskElement);
                 });
                 
-                // Store the Quill instance
-                noteQuills[note.id] = quill;
-            }, 0);
-            
-            return noteElement;
-        }
-
-        function makeDateEditable(noteId, element) {
-            // Hide the display element
-            element.style.display = 'none';
-            
-            // Show the input field
-            const input = document.getElementById(`date-input-${noteId}`);
-            input.style.display = 'inline-block';
-            input.value = notes.find(n => n.id === noteId).date || '';
-            input.focus();
-        }
-
-        function updateNoteDate(noteId, newDate) {
-            // Update the note
-            const note = notes.find(n => n.id === noteId);
-            if (note) {
-                note.date = newDate;
-                note.updated = new Date().toISOString();
-                saveNotes();
-                
-                // Update the display
-                const dateElement = document.querySelector(`.note-item[data-id="${noteId}"] .note-date`);
-                dateElement.textContent = newDate ? formatDate(newDate) : 'No date';
-                dateElement.style.display = 'inline-block';
-                
-                // Hide the input
-                document.getElementById(`date-input-${noteId}`).style.display = 'none';
+                document.getElementById('doneList').appendChild(completedContent);
             }
         }
 
         function moveSubheading(type, index, direction) {
-            const subheadings = noteSubheadings;
-            
             if (direction === 'up' && index > 0) {
-                [subheadings[index], subheadings[index - 1]] = [subheadings[index - 1], subheadings[index]];
-            } else if (direction === 'down' && index < subheadings.length - 1) {
-                [subheadings[index], subheadings[index + 1]] = [subheadings[index + 1], subheadings[index]];
+                [taskSubheadings[index], taskSubheadings[index - 1]] = [taskSubheadings[index - 1], taskSubheadings[index]];
+            } else if (direction === 'down' && index < taskSubheadings.length - 1) {
+                [taskSubheadings[index], taskSubheadings[index + 1]] = [taskSubheadings[index + 1], taskSubheadings[index]];
             }
             
             saveSubheadings(type);
+            saveTasks();
+            
             renderSubheadings(type);
         }
 
         function updateSubheading(type, index, value) {
-            const subheadings = noteSubheadings;
+            const oldValue = taskSubheadings[index];
+            taskSubheadings[index] = value;
             
-            const oldValue = subheadings[index];
-            subheadings[index] = value;
-            
-            // Update all items with the old subheading
-            notes.forEach(note => {
-                if (note.subheading === oldValue) {
-                    note.subheading = value;
+            tasks.forEach(task => {
+                if (task.subheading === oldValue) {
+                    task.subheading = value;
                 }
             });
-            saveNotes();
+            saveTasks();
             
             saveSubheadings(type);
             renderSubheadings(type);
@@ -912,10 +1513,8 @@
             
             if (!newSubheading) return;
             
-            const subheadings = noteSubheadings;
-            
-            if (!subheadings.includes(newSubheading)) {
-                subheadings.push(newSubheading);
+            if (!taskSubheadings.includes(newSubheading)) {
+                taskSubheadings.push(newSubheading);
                 document.getElementById(inputId).value = '';
                 saveSubheadings(type);
                 renderSubheadings(type);
@@ -923,71 +1522,397 @@
         }
 
         function removeSubheading(type, index) {
-            const subheadings = noteSubheadings;
+            if (taskSubheadings.length <= 1) return;
             
-            if (subheadings.length <= 1) return;
-            
-            if (!confirm(`Are you sure you want to delete the "${subheadings[index]}" subheading? All items in this subheading will be moved to "${subheadings[0]}"`)) {
+            if (!confirm(`Are you sure you want to delete the "${taskSubheadings[index]}" subheading? All items in this subheading will be moved to "${taskSubheadings[0]}"`)) {
                 return;
             }
             
-            // Move items from this subheading to the first subheading
-            const subheadingToRemove = subheadings[index];
-            notes.forEach(note => {
-                if (note.subheading === subheadingToRemove) {
-                    note.subheading = subheadings[0];
+            const subheadingToRemove = taskSubheadings[index];
+            tasks.forEach(task => {
+                if (task.subheading === subheadingToRemove) {
+                    task.subheading = taskSubheadings[0];
                 }
             });
-            saveNotes();
+            saveTasks();
             
-            // Remove from collapsed state tracking
             const key = `${type}-${subheadingToRemove}`;
             if (collapsedSubheadings[key]) {
                 delete collapsedSubheadings[key];
             }
             
-            subheadings.splice(index, 1);
+            taskSubheadings.splice(index, 1);
             saveSubheadings(type);
             renderSubheadings(type);
         }
 
         function saveSubheadings(type) {
-            localStorage.setItem('noteSubheadings', JSON.stringify(noteSubheadings));
+            localStorage.setItem('taskSubheadings', JSON.stringify(taskSubheadings));
         }
 
-        // Note Functions
-        function addNote() {
-            const note = {
+        const extendedColors = [
+            '#8B00FF', '#FF00FF', '#BC13FE', '#FF1493', '#7B68EE',
+            '#000000', '#FFFFFF', '#808080', '#A52A2A', '#800000',
+            '#008000', '#000080', '#800080', '#008080', '#C0C0C0',
+            '#FF073A', '#00FF00', '#00FFFF', '#FFD700', '#FF00FF'
+        ];  
+
+        const primaryColors = ['FF0000', '#FF6600', '#FFFF00', '#39FF14', '#0000FF'];
+
+        function toggleColorDropdown(event, dropdownId) {
+            event.stopPropagation();
+            const dropdown = document.getElementById(dropdownId);
+            const wasActive = dropdown.classList.contains('active');
+            
+            // Close all dropdowns first
+            document.querySelectorAll('.color-dropdown').forEach(d => d.classList.remove('active'));
+            
+            if (!wasActive) {
+                dropdown.classList.add('active');
+            }
+        }
+
+        function populateColorDropdown(gridId, taskId) {
+            const grid = document.getElementById(gridId);
+            if (!grid) return;
+            
+            const colorOptions = extendedColors.slice(0, 19).map(color => 
+                `<div class="color-option" 
+                      style="background-color: ${color}" 
+                      data-color="${color}"
+                      onclick="selectExtendedColor(event, '${color}', ${taskId})"></div>`
+            ).join('');
+            
+            const customPickerId = taskId ? `customColor-${taskId}` : 'customColor-input';
+            const customPicker = `
+                <div class="color-option custom-color-picker" style="position: relative; overflow: hidden;">
+                    <input type="color" id="${customPickerId}" 
+                           style="position: absolute; width: 40px; height: 40px; top: -10px; left: -10px; cursor: pointer; border: none; padding: 0;"
+                           onchange="selectExtendedColor(event, this.value, ${taskId})">
+                    <i class="fas fa-eyedropper" style="font-size: 10px; color: #666; pointer-events: none;"></i>
+                </div>
+            `;
+            
+            grid.innerHTML = colorOptions + customPicker;
+        }
+
+        function selectExtendedColor(event, color, taskId) {
+            event.stopPropagation();
+            
+            if (taskId) {
+                updateTaskColor(taskId, color);
+            } else {
+                // Input form color selection
+                document.querySelectorAll('#taskColorPicker .color-option').forEach(opt => opt.classList.remove('selected'));
+                const moreBtn = document.querySelector('#taskColorPicker .color-more-btn');
+                
+                // Check if it's a primary color
+                const primaryOption = document.querySelector(`#taskColorPicker > .color-option[data-color="${color}"]`);
+                if (primaryOption) {
+                    primaryOption.classList.add('selected');
+                    moreBtn?.classList.remove('selected');
+                } else {
+                    moreBtn?.classList.add('selected');
+                }
+                
+                selectedColor = color;
+            }
+            
+            // Close dropdown
+            document.querySelectorAll('.color-dropdown').forEach(d => d.classList.remove('active'));
+        }
+
+        function setupStarRating() {
+            const stars = document.querySelectorAll('#priorityStars i');
+            stars.forEach(star => {
+                star.addEventListener('click', () => {
+                    const value = parseInt(star.getAttribute('data-value'));
+                    selectedPriority = value;
+                    
+                    stars.forEach((s, index) => {
+                        if (index < value) {
+                            s.classList.add('active');
+                        } else {
+                            s.classList.remove('active');
+                        }
+                    });
+                });
+            });
+            
+            const colorOptions = document.querySelectorAll('#taskColorPicker > .color-option');
+            
+            colorOptions.forEach(option => {
+                option.addEventListener('click', () => {
+                    document.querySelectorAll('#taskColorPicker .color-option').forEach(opt => opt.classList.remove('selected'));
+                    document.querySelector('#taskColorPicker .color-more-btn')?.classList.remove('selected');
+                    option.classList.add('selected');
+                    selectedColor = option.getAttribute('data-color');
+                });
+            });
+            
+            // Populate extended color dropdown
+            populateColorDropdown('inputColorGrid', null);
+            
+            // Close dropdowns when clicking outside
+            document.addEventListener('click', (e) => {
+                if (!e.target.closest('.color-picker-wrapper')) {
+                    document.querySelectorAll('.color-dropdown').forEach(d => d.classList.remove('active'));
+                }
+            });
+            
+            // Populate subheading select
+            updateNewTaskSubheadingSelect();
+        }
+
+        // Function to update the subheading select dropdown
+        function updateNewTaskSubheadingSelect() {
+            const select = document.getElementById('newTaskSubheadingSelect');
+            if (select) {
+                select.innerHTML = '<option value="">Select subheading</option>' +
+                    taskSubheadings.map(sh => `<option value="${sh}">${sh}</option>`).join('');
+                if (taskSubheadings.length > 0) {
+                    select.value = taskSubheadings[0];
+                }
+            }
+        }
+
+        // Function to toggle notes in the new task form
+        function toggleNewTaskNotes(header) {
+            const content = header.nextElementSibling;
+            content.classList.toggle('expanded');
+            header.classList.toggle('expanded');
+
+            if (content.classList.contains('expanded') && quillInput) {
+                setTimeout(() => {
+                    quillInput.focus();
+                }, 0);
+            }
+        }
+
+        function addTask() {
+            const subheadingSelect = document.getElementById('newTaskSubheadingSelect');
+            const selectedSubheading = subheadingSelect ? subheadingSelect.value : taskSubheadings[0];
+            
+            if (!selectedSubheading) {
+                alert('Please select a subheading');
+                return;
+            }
+            
+            const priorityText = 
+                selectedPriority >= 4 ? 'high' : 
+                selectedPriority >= 2 ? 'medium' : 'low';
+
+            const startDate = document.getElementById('taskStartDate').value;
+            const startTime = document.getElementById('taskStartTime').value;
+            const dueDate = document.getElementById('taskDueDate').value;
+            const dueTime = document.getElementById('taskDueTime').value;
+            const notesHtml = getQuillHTML(quillInput);
+
+            const task = {
                 id: Date.now(),
-                title: document.getElementById('noteTitle').value.trim(),
-                date: document.getElementById('noteDate').value,
-                content: quill.root.innerHTML,
+                title: document.getElementById('taskTitle').value.trim(),
+                startDate: startDate,
+                startTime: startTime,
+                dueDate: dueDate,
+                dueTime: dueTime,
+                priority: priorityText,
+                priorityValue: selectedPriority,
+                notes: notesHtml,
+                currentStep: document.getElementById('newTaskCurrentStep').value,
+                completed: false,
                 created: new Date().toISOString(),
-                updated: new Date().toISOString(),
-                subheading: noteSubheadings[0]
+                subheading: selectedSubheading,
+                color: selectedColor
             };
 
-            if (!note.title) return;
+            if (!task.title) return;
 
-            notes.push(note);
-            saveNotes();
-            renderNotes();
-            clearNoteForm();
+            tasks.push(task);
+            saveTasks();
+            renderTasks();
+            clearTaskForm();
         }
 
-        function renderNotes(filteredNotes = notes) {
-            renderSubheadings('note');
+        function renderTasks() {
+            taskQuillEditors = {};
+            renderSubheadings('task');
         }
 
-        function moveNote(id, direction) {
-            const index = notes.findIndex(n => n.id === id);
-            if (direction === 'up' && index > 0) {
-                [notes[index], notes[index - 1]] = [notes[index - 1], notes[index]];
-            } else if (direction === 'down' && index < notes.length - 1) {
-                [notes[index], notes[index + 1]] = [notes[index + 1], notes[index]];
+        function createTaskElement(task) {
+            const taskElement = document.createElement('div');
+            taskElement.className = `task-item priority-${task.priority} ${task.completed ? 'completed' : ''}`;
+            taskElement.setAttribute('data-id', task.id);
+            taskElement.style.borderLeftColor = task.color || '#1a73e8';
+            taskElement.style.borderLeftWidth = '4px';
+            taskElement.style.borderLeftStyle = 'solid';
+            
+            let timelineHTML = '';
+            if (task.startDate && task.dueDate) {
+                const progress = calculateTimelineProgress(task.startDate, task.dueDate);
+                const progressValue = Math.round(progress.percentage);
+
+                // Color by elapsed progress: first third green, second third yellow, final third red (overdue always red)
+                let progressColor = '#28a745';
+                if (progress.status === 'overdue' || progressValue > 66) {
+                    progressColor = '#dc3545';
+                } else if (progressValue > 33) {
+                    progressColor = '#ffc107';
+                }
+                
+                timelineHTML = `
+                    <div class="timeline-container">
+                        <span class="timeline-percent">${progressValue}%</span>
+                        <div class="timeline-bar">
+                            <div class="timeline-progress" style="width: ${progressValue}%; background: ${progressColor}"></div>
+                        </div>
+                        <div class="timeline-dates">
+                            <span>Due: ${formatDate(task.dueDate)} ${task.dueTime ? task.dueTime : ''}</span>
+                        </div>
+                    </div>
+                `;
             }
-            saveNotes();
-            renderNotes();
+
+            let starsHTML = '';
+            for (let i = 1; i <= 5; i++) {
+                starsHTML += `<i class="fas fa-star ${i <= task.priorityValue ? 'active' : ''}" 
+                             onclick="updateTaskPriority(${task.id}, ${i})"></i>`;
+            }
+
+            const subheadingOptions = taskSubheadings.map(sh => 
+                `<option value="${sh}" ${task.subheading === sh ? 'selected' : ''}>${sh}</option>`
+            ).join('');
+
+            const isPrimaryColor = primaryColors.includes(task.color);
+            const colorOptionsHTML = primaryColors.map(color => 
+                `<div class="color-option ${task.color === color ? 'selected' : ''}" 
+                      style="background-color: ${color}" 
+                      data-color="${color}"
+                      onclick="updateTaskColor(${task.id}, '${color}')"></div>`
+            ).join('') + `
+                <div class="color-picker-wrapper">
+                    <div class="color-more-btn ${!isPrimaryColor && task.color ? 'selected' : ''}" 
+                         onclick="toggleColorDropdown(event, 'colorDropdown-${task.id}')" 
+                         title="More colors">+</div>
+                    <div class="color-dropdown" id="colorDropdown-${task.id}">
+                        <div class="color-dropdown-grid" id="colorGrid-${task.id}"></div>
+                    </div>
+                </div>`;
+
+            taskElement.innerHTML = `
+                <div class="task-header">
+                    <span class="task-title" contenteditable="true" 
+                          oninput="updateTaskField(${task.id}, 'title', this.innerText)">
+                        ${task.title}
+                    </span>
+                    <div class="subheading-selector">
+                        <select onchange="updateTaskField(${task.id}, 'subheading', this.value)">
+                            ${subheadingOptions}
+                        </select>
+                    </div>
+                    <div class="complete-checkbox">
+                        <input type="checkbox" id="complete-${task.id}" ${task.completed ? 'checked' : ''} 
+                               onchange="toggleTask(${task.id})">
+                        <label for="complete-${task.id}" class="complete-checkbox-label">Complete</label>
+                    </div>
+                    <div class="task-controls">
+                        <button class="delete-btn" onclick="confirmDelete('task', ${task.id})">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <textarea class="current-step" placeholder="What's the current step?" 
+                       oninput="updateTaskField(${task.id}, 'currentStep', this.value); autoResizeTextarea(this)">${task.currentStep || ''}</textarea>
+                
+                <div class="task-meta">
+                    <div class="task-meta-item">
+                        <span>Priority</span>
+                        <div class="star-rating">
+                            ${starsHTML}
+                        </div>
+                    </div>
+                    
+                    <div class="task-meta-item datetime-inline">
+                        <span>Start</span>
+                        <div class="datetime-row">
+                            <input type="date" value="${task.startDate || ''}" 
+                                   onchange="updateTaskField(${task.id}, 'startDate', this.value); updateTaskTimeline(${task.id})">
+                            <input type="time" value="${task.startTime || ''}" 
+                                   onchange="updateTaskField(${task.id}, 'startTime', this.value); updateTaskTimeline(${task.id})">
+                        </div>
+                    </div>
+                    
+                    <div class="task-meta-item datetime-inline">
+                        <span>Due</span>
+                        <div class="datetime-row">
+                            <input type="date" value="${task.dueDate || ''}" 
+                                   onchange="updateTaskField(${task.id}, 'dueDate', this.value); updateTaskTimeline(${task.id})">
+                            <input type="time" value="${task.dueTime || ''}" 
+                                   onchange="updateTaskField(${task.id}, 'dueTime', this.value); updateTaskTimeline(${task.id})">
+                        </div>
+                    </div>
+                    
+                    <div class="task-meta-item">
+                        <span>Color</span>
+                        <div class="color-picker">
+                            ${colorOptionsHTML}
+                        </div>
+                    </div>
+                    
+                    ${timelineHTML}
+                </div>
+                
+                <div class="notes-header" onclick="toggleNotes(this)">
+                    Notes
+                </div>
+                <div class="notes-content" data-task-id="${task.id}">
+                    <div id="task-notes-editor-${task.id}" class="quill-editor"></div>
+                </div>
+                
+                <div class="move-buttons">
+                    <button onclick="moveTask(${task.id}, 'up')">↑</button>
+                    <button onclick="moveTask(${task.id}, 'down')">↓</button>
+                </div>
+            `;
+            
+            const currentStepTextarea = taskElement.querySelector('.current-step');
+            autoResizeTextarea(currentStepTextarea);
+            
+            setTimeout(() => {
+                initializeTaskQuillEditor(task.id, task.notes || '');
+                populateColorDropdown(`colorGrid-${task.id}`, task.id);
+            }, 0);
+            
+            return taskElement;
+        }
+
+        function calculateTimelineProgress(startDate, dueDate) {
+            const now = new Date();
+            const start = new Date(startDate);
+            const end = new Date(dueDate);
+            
+            if (isNaN(start.getTime()) || isNaN(end.getTime())) {
+                return { percentage: 0, remainingPercentage: 0, status: 'invalid' };
+            }
+            
+            const total = end - start;
+            const elapsed = now - start;
+            const remaining = end - now;
+            
+            let percentage = (elapsed / total) * 100;
+            percentage = Math.max(0, Math.min(100, percentage));
+
+            let remainingPercentage = (remaining / total) * 100;
+            remainingPercentage = Math.max(0, Math.min(100, remainingPercentage));
+            
+            let status = 'on-track';
+            if (now > end) {
+                status = 'overdue';
+            } else if (percentage > 80) {
+                status = 'nearing-deadline';
+            }
+            
+            return { percentage, remainingPercentage, status };
         }
 
         function formatDate(dateString) {
@@ -996,27 +1921,109 @@
             return new Date(dateString).toLocaleDateString(undefined, options);
         }
 
-        // Common Functions
-        function confirmDelete(type, id) {
-            if (window.confirm(`Are you sure you want to delete this ${type}?`)) {
-                deleteNote(id);
+        function updateTaskPriority(taskId, newPriority) {
+            const task = tasks.find(t => t.id === taskId);
+            if (task) {
+                task.priorityValue = newPriority;
+                task.priority = newPriority >= 4 ? 'high' : newPriority >= 2 ? 'medium' : 'low';
+                saveTasks();
+                renderTasks();
             }
         }
 
-        function deleteNote(id) {
-            notes = notes.filter(n => n.id !== id);
-            saveNotes();
-            renderNotes();
+        function updateTaskColor(taskId, color) {
+            const task = tasks.find(t => t.id === taskId);
+            if (task) {
+                task.color = color;
+                saveTasks();
+                renderTasks();
+            }
         }
 
-        function updateNoteField(id, field, value) {
-            const note = notes.find(n => n.id === id);
-            if (note) {
-                note[field] = value;
-                note.updated = new Date().toISOString();
-                saveNotes();
+        function updateTaskTimeline(taskId) {
+            const task = tasks.find(t => t.id === taskId);
+            if (!task) return;
+
+            const taskElement = document.querySelector(`.task-item[data-id="${taskId}"]`);
+            if (!taskElement) return;
+
+            const existingTimeline = taskElement.querySelector('.timeline-container');
+            
+            if (task.startDate && task.dueDate) {
+                const progress = calculateTimelineProgress(task.startDate, task.dueDate);
+                const progressValue = Math.round(progress.percentage);
+
+                let progressColor = '#28a745';
+                if (progress.status === 'overdue' || progressValue > 66) {
+                    progressColor = '#dc3545';
+                } else if (progressValue > 33) {
+                    progressColor = '#ffc107';
+                }
+
+                const timelineHTML = `
+                    <div class="timeline-container">
+                        <span class="timeline-percent">${progressValue}%</span>
+                        <div class="timeline-bar">
+                            <div class="timeline-progress" style="width: ${progressValue}%; background: ${progressColor}"></div>
+                        </div>
+                        <div class="timeline-dates">
+                            <span>Due: ${formatDate(task.dueDate)} ${task.dueTime ? task.dueTime : ''}</span>
+                        </div>
+                    </div>
+                `;
+
+                if (existingTimeline) {
+                    existingTimeline.outerHTML = timelineHTML;
+                } else {
+                    const taskMeta = taskElement.querySelector('.task-meta');
+                    if (taskMeta) {
+                        taskMeta.insertAdjacentHTML('beforeend', timelineHTML);
+                    }
+                }
+            } else if (existingTimeline) {
+                existingTimeline.remove();
+            }
+        }
+
+        function toggleTask(id) {
+            const task = tasks.find(t => t.id === id);
+            if (task) {
+                task.completed = !task.completed;
+                saveTasks();
+                renderTasks();
+            }
+        }
+
+        function moveTask(id, direction) {
+            const index = tasks.findIndex(t => t.id === id);
+            if (direction === 'up' && index > 0) {
+                [tasks[index], tasks[index - 1]] = [tasks[index - 1], tasks[index]];
+            } else if (direction === 'down' && index < tasks.length - 1) {
+                [tasks[index], tasks[index + 1]] = [tasks[index + 1], tasks[index]];
+            }
+            saveTasks();
+            renderTasks();
+        }
+
+        function confirmDelete(type, id) {
+            if (window.confirm(`Are you sure you want to delete this ${type}?`)) {
+                deleteTask(id);
+            }
+        }
+
+        function deleteTask(id) {
+            tasks = tasks.filter(t => t.id !== id);
+            saveTasks();
+            renderTasks();
+        }
+
+        function updateTaskField(id, field, value) {
+            const task = tasks.find(t => t.id === id);
+            if (task) {
+                task[field] = value;
+                saveTasks();
                 if (field === 'subheading') {
-                    renderNotes();
+                    renderTasks();
                 }
             }
         }
@@ -1024,70 +2031,165 @@
         function toggleNotes(header) {
             const content = header.nextElementSibling;
             content.classList.toggle('expanded');
-            
-            // Adjust Quill editor height when expanded
-            if (content.classList.contains('expanded')) {
-                const noteId = header.closest('.note-item').getAttribute('data-id');
-                const quill = noteQuills[noteId];
-                if (quill) {
-                    setTimeout(() => {
-                        const editor = quill.root;
-                        editor.style.height = 'auto';
-                        editor.style.height = (editor.scrollHeight) + 'px';
-                    }, 10);
-                }
+
+            const taskId = content.getAttribute('data-task-id');
+            if (taskId && taskQuillEditors[taskId] && content.classList.contains('expanded')) {
+                setTimeout(() => {
+                    taskQuillEditors[taskId].focus();
+                }, 0);
             }
         }
 
-        function searchNotes() {
-            const searchTerm = document.getElementById('noteSearch').value.toLowerCase();
-            const filtered = notes.filter(n => 
-                n.title.toLowerCase().includes(searchTerm) ||
-                n.content.toLowerCase().includes(searchTerm)
+        function searchTasks() {
+            const searchTerm = document.getElementById('taskSearch').value.toLowerCase();
+            const filtered = tasks.filter(t => 
+                t.title.toLowerCase().includes(searchTerm) ||
+                (stripHtml(t.notes).toLowerCase().includes(searchTerm)) ||
+                (t.currentStep && t.currentStep.toLowerCase().includes(searchTerm))
             );
             
-            const notesList = document.getElementById('notesList');
-            notesList.innerHTML = '';
+            const tasksList = document.getElementById('tasksList');
+            tasksList.innerHTML = `
+                <h3 class="current-header">Current Tasks</h3>
+                <div id="currentList"></div>
+                <div class="completed-section">
+                    <div class="completed-header" onclick="toggleCompletedTasks()">
+                        <span>Completed Tasks</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="completed-content" id="doneList"></div>
+                </div>
+            `;
             
-            // Group by subheading
-            const grouped = {};
-            filtered.forEach(note => {
-                if (!grouped[note.subheading]) {
-                    grouped[note.subheading] = [];
+            if (completedTasksCollapsed) {
+                document.querySelector('.completed-content').classList.add('collapsed');
+                document.querySelector('.completed-header').classList.add('collapsed');
+            }
+            
+            const currentGrouped = {};
+            const completedGrouped = {};
+            
+            filtered.forEach(task => {
+                if (!task.completed) {
+                    if (!currentGrouped[task.subheading]) {
+                        currentGrouped[task.subheading] = [];
+                    }
+                    currentGrouped[task.subheading].push(task);
+                } else {
+                    if (!completedGrouped[task.subheading]) {
+                        completedGrouped[task.subheading] = [];
+                    }
+                    completedGrouped[task.subheading].push(task);
                 }
-                grouped[note.subheading].push(note);
             });
             
-            // Render each group
-            for (const [subheading, items] of Object.entries(grouped)) {
+            for (const [subheading, items] of Object.entries(currentGrouped)) {
                 const subheadingElement = document.createElement('div');
                 subheadingElement.className = 'subheading';
                 subheadingElement.textContent = subheading;
-                notesList.appendChild(subheadingElement);
+                document.getElementById('currentList').appendChild(subheadingElement);
                 
-                items.forEach(note => {
-                    const noteElement = createNoteElement(note);
-                    notesList.appendChild(noteElement);
+                items.forEach(task => {
+                    const taskElement = createTaskElement(task);
+                    document.getElementById('currentList').appendChild(taskElement);
+                });
+            }
+            
+            for (const [subheading, items] of Object.entries(completedGrouped)) {
+                const subheadingElement = document.createElement('div');
+                subheadingElement.className = 'subheading';
+                subheadingElement.textContent = `${subheading} - Completed`;
+                document.getElementById('doneList').appendChild(subheadingElement);
+                
+                items.forEach(task => {
+                    const taskElement = createTaskElement(task);
+                    document.getElementById('doneList').appendChild(taskElement);
                 });
             }
         }
 
-        function clearNoteForm() {
-            document.getElementById('noteTitle').value = '';
-            document.getElementById('noteDate').value = '';
-            quill.root.innerHTML = '';
-            adjustEditorHeight();
+        function clearTaskForm() {
+            document.getElementById('taskTitle').value = '';
+            document.getElementById('newTaskCurrentStep').value = '';
+            
+            // Set default start date to today and time to now
+            const now = new Date();
+            document.getElementById('taskStartDate').value = now.toISOString().split('T')[0];
+            document.getElementById('taskStartTime').value = now.toTimeString().slice(0, 5);
+            
+            document.getElementById('taskDueDate').value = '';
+            document.getElementById('taskDueTime').value = '';
+            if (quillInput) {
+                quillInput.setContents([]);
+            }
+            
+            const notesContent = document.querySelector('.input-section .notes-content');
+            const notesHeader = document.querySelector('.input-section .notes-header');
+            if (notesContent && notesHeader) {
+                notesContent.classList.remove('expanded');
+                notesHeader.classList.remove('expanded');
+            }
+            
+            const currentStepTextarea = document.getElementById('newTaskCurrentStep');
+            if (currentStepTextarea) {
+                currentStepTextarea.style.height = 'auto';
+            }
+            
+            selectedPriority = 1;
+            const stars = document.querySelectorAll('#priorityStars i');
+            stars.forEach((star, index) => {
+                if (index === 0) {
+                    star.classList.add('active');
+                } else {
+                    star.classList.remove('active');
+                }
+            });
+            
+            selectedColor = '#FF073A';
+            const colorOptions = document.querySelectorAll('#taskColorPicker .color-option');
+            colorOptions.forEach((option, index) => {
+                if (index === 0) {
+                    option.classList.add('selected');
+                } else {
+                    option.classList.remove('selected');
+                }
+            });
+            
+            // Reset subheading select to first option
+            const subheadingSelect = document.getElementById('newTaskSubheadingSelect');
+            if (subheadingSelect && taskSubheadings.length > 0) {
+                subheadingSelect.value = taskSubheadings[0];
+            }
+            
+            // Hide timeline
+            const timeline = document.getElementById('newTaskTimeline');
+            if (timeline) timeline.style.display = 'none';
         }
 
-        // Initialization
+        function saveTasks() { localStorage.setItem('tasks', JSON.stringify(tasks)); }
+
         window.onload = () => {
-            // Initialize notes
-            renderNotes();
+            setupStarRating();
+            initializeInputQuill();
+            renderTasks();
+            initAutoResize();
             
-            // Collapse input section by default
-            const notesInputSection = document.querySelector('.input-section');
-            if (notesInputSection) {
-                notesInputSection.classList.add('collapsed');
+            // Set default start date to today and time to now
+            const now = new Date();
+            document.getElementById('taskStartDate').value = now.toISOString().split('T')[0];
+            document.getElementById('taskStartTime').value = now.toTimeString().slice(0, 5);
+            
+            document.querySelectorAll('.input-section').forEach(section => {
+                section.classList.add('collapsed');
+            });
+            
+            if (completedTasksCollapsed) {
+                const doneList = document.querySelector('.completed-content');
+                const header = document.querySelector('.completed-header');
+                if (doneList && header) {
+                    doneList.classList.add('collapsed');
+                    header.classList.add('collapsed');
+                }
             }
         };
     </script>
