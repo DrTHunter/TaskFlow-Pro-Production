@@ -156,11 +156,11 @@
             padding: 5px 6px;
             border-radius: 4px;
             font-size: 12px;
-            width: 110px;
+            width: auto;
         }
 
         .input-section .datetime-row input[type="time"] {
-            width: 85px;
+            width: auto;
         }
 
         .input-section .star-rating {
@@ -481,11 +481,11 @@
             border-radius: 4px;
             font-size: 12px;
             border: 1px solid #ddd;
-            width: 110px;
+            width: auto;
         }
 
         .task-item .datetime-row input[type="time"] {
-            width: 85px;
+            width: auto;
         }
 
         .task-item .star-rating {
@@ -1539,7 +1539,7 @@
             '#FF073A', '#00FF00', '#00FFFF', '#FFD700', '#FF00FF'
         ];  
 
-        const primaryColors = ['#FF0000', '#FF6600', '#FFFF00', '#39FF14', '#0000FF'];
+        const primaryColors = ['FF0000', '#FF6600', '#FFFF00', '#39FF14', '#0000FF'];
 
         function toggleColorDropdown(event, dropdownId) {
             event.stopPropagation();
@@ -2093,8 +2093,12 @@
         function clearTaskForm() {
             document.getElementById('taskTitle').value = '';
             document.getElementById('newTaskCurrentStep').value = '';
-            document.getElementById('taskStartDate').value = '';
-            document.getElementById('taskStartTime').value = '';
+            
+            // Set default start date to today and time to now
+            const now = new Date();
+            document.getElementById('taskStartDate').value = now.toISOString().split('T')[0];
+            document.getElementById('taskStartTime').value = now.toTimeString().slice(0, 5);
+            
             document.getElementById('taskDueDate').value = '';
             document.getElementById('taskDueTime').value = '';
             if (quillInput) {
@@ -2151,6 +2155,11 @@
             initializeInputQuill();
             renderTasks();
             initAutoResize();
+            
+            // Set default start date to today and time to now
+            const now = new Date();
+            document.getElementById('taskStartDate').value = now.toISOString().split('T')[0];
+            document.getElementById('taskStartTime').value = now.toTimeString().slice(0, 5);
             
             document.querySelectorAll('.input-section').forEach(section => {
                 section.classList.add('collapsed');
