@@ -181,6 +181,42 @@
             height: 16px;
         }
 
+        .color-picker-input {
+            width: 20px;
+            height: 20px;
+            padding: 0;
+            border: 2px solid #ddd;
+            border-radius: 50%;
+            cursor: pointer;
+            -webkit-appearance: none;
+            appearance: none;
+            background: none;
+        }
+
+        .color-picker-input::-webkit-color-swatch-wrapper {
+            padding: 0;
+        }
+
+        .color-picker-input::-webkit-color-swatch {
+            border: none;
+            border-radius: 50%;
+        }
+
+        .color-picker-input::-moz-color-swatch {
+            border: none;
+            border-radius: 50%;
+        }
+
+        .color-picker-input.selected {
+            border-color: #000;
+        }
+
+        .input-section .color-picker-input,
+        .task-item .color-picker-input {
+            width: 16px;
+            height: 16px;
+        }
+
         .input-section .datetime-label {
             font-size: 11px;
             color: #888;
@@ -1041,6 +1077,12 @@
                             <div class="color-option" style="background-color: #28a745;" data-color="#28a745"></div>
                             <div class="color-option" style="background-color: #ffc107;" data-color="#ffc107"></div>
                             <div class="color-option" style="background-color: #6f42c1;" data-color="#6f42c1"></div>
+                            <div class="color-option" style="background-color: #17a2b8;" data-color="#17a2b8"></div>
+                            <div class="color-option" style="background-color: #fd7e14;" data-color="#fd7e14"></div>
+                            <div class="color-option" style="background-color: #e83e8c;" data-color="#e83e8c"></div>
+                            <div class="color-option" style="background-color: #20c997;" data-color="#20c997"></div>
+                            <div class="color-option" style="background-color: #6c757d;" data-color="#6c757d"></div>
+                            <input type="color" class="color-picker-input" id="customColorPicker" value="#1a73e8" title="Choose custom color">
                         </div>
                     </div>
                 </div>
@@ -1464,13 +1506,24 @@
             });
             
             const colorOptions = document.querySelectorAll('#taskColorPicker .color-option');
+            const customColorPicker = document.getElementById('customColorPicker');
+            
             colorOptions.forEach(option => {
                 option.addEventListener('click', () => {
                     colorOptions.forEach(opt => opt.classList.remove('selected'));
+                    if (customColorPicker) customColorPicker.classList.remove('selected');
                     option.classList.add('selected');
                     selectedColor = option.getAttribute('data-color');
                 });
             });
+            
+            if (customColorPicker) {
+                customColorPicker.addEventListener('input', () => {
+                    colorOptions.forEach(opt => opt.classList.remove('selected'));
+                    customColorPicker.classList.add('selected');
+                    selectedColor = customColorPicker.value;
+                });
+            }
             
             // Populate subheading select
             updateNewTaskSubheadingSelect();
@@ -1594,13 +1647,17 @@
                 `<option value="${sh}" ${task.subheading === sh ? 'selected' : ''}>${sh}</option>`
             ).join('');
 
-            const colors = ['#1a73e8', '#dc3545', '#28a745', '#ffc107', '#6f42c1'];
+            const colors = ['#1a73e8', '#dc3545', '#28a745', '#ffc107', '#6f42c1', '#17a2b8', '#fd7e14', '#e83e8c', '#20c997', '#6c757d'];
+            const isCustomColor = !colors.includes(task.color) && task.color;
             const colorOptions = colors.map(color => 
                 `<div class="color-option ${task.color === color ? 'selected' : ''}" 
                       style="background-color: ${color}" 
                       data-color="${color}"
                       onclick="updateTaskColor(${task.id}, '${color}')"></div>`
-            ).join('');
+            ).join('') + `<input type="color" class="color-picker-input ${isCustomColor ? 'selected' : ''}" 
+                      value="${task.color || '#1a73e8'}" 
+                      title="Choose custom color"
+                      onchange="updateTaskColor(${task.id}, this.value)">`;
 
             taskElement.innerHTML = `
                 <div class="task-header">
