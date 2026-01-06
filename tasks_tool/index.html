@@ -121,41 +121,64 @@
         }
 
         .input-section .task-meta {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: 12px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
             padding: 12px;
             background-color: #f8f9fa;
             border-radius: 6px;
             margin: 5px 0;
-            align-items: start;
+            align-items: center;
         }
 
         .input-section .task-meta-item {
             display: flex;
-            flex-direction: column;
-            gap: 6px;
+            flex-direction: row;
+            align-items: center;
+            gap: 8px;
         }
 
         .input-section .task-meta-item > span {
             font-weight: 500;
             color: #555;
-            font-size: 12px;
+            font-size: 11px;
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
 
         .input-section .datetime-row {
             display: flex;
-            gap: 8px;
+            gap: 4px;
             align-items: center;
         }
 
         .input-section .datetime-row input {
-            padding: 6px 8px;
+            padding: 5px 6px;
             border-radius: 4px;
-            font-size: 13px;
-            width: 130px;
+            font-size: 12px;
+            width: 110px;
+        }
+
+        .input-section .datetime-row input[type="time"] {
+            width: 85px;
+        }
+
+        .input-section .star-rating {
+            gap: 3px;
+        }
+
+        .input-section .star-rating i {
+            font-size: 14px;
+        }
+
+        .input-section .color-picker {
+            gap: 4px;
+            margin-top: 0;
+        }
+
+        .input-section .color-option {
+            width: 16px;
+            height: 16px;
         }
 
         .input-section .datetime-label {
@@ -994,7 +1017,7 @@
                         </div>
                     </div>
                     
-                    <div class="task-meta-item datetime-item">
+                    <div class="task-meta-item">
                         <span>Start</span>
                         <div class="datetime-row">
                             <input type="date" id="taskStartDate">
@@ -1002,7 +1025,7 @@
                         </div>
                     </div>
                     
-                    <div class="task-meta-item datetime-item">
+                    <div class="task-meta-item">
                         <span>Due</span>
                         <div class="datetime-row">
                             <input type="date" id="taskDueDate">
