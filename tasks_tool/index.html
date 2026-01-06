@@ -241,6 +241,26 @@
             height: 20px;
         }
 
+        .custom-color-picker {
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 3px solid transparent;
+            background-image: linear-gradient(white, white), conic-gradient(red, yellow, lime, aqua, blue, magenta, red);
+            background-origin: border-box;
+            background-clip: padding-box, border-box;
+        }
+
+        .custom-color-picker:hover {
+            opacity: 0.8;
+        }
+
+        .custom-color-picker i {
+            color: #666 !important;
+            text-shadow: none;
+        }
+
         .input-section .datetime-label {
             font-size: 11px;
             color: #888;
@@ -1096,11 +1116,11 @@
                     <div class="task-meta-item">
                         <span>Color</span>
                         <div class="color-picker" id="taskColorPicker">
-                            <div class="color-option selected" style="background-color: #1a73e8;" data-color="#1a73e8"></div>
-                            <div class="color-option" style="background-color: #dc3545;" data-color="#dc3545"></div>
-                            <div class="color-option" style="background-color: #28a745;" data-color="#28a745"></div>
-                            <div class="color-option" style="background-color: #ffc107;" data-color="#ffc107"></div>
-                            <div class="color-option" style="background-color: #6f42c1;" data-color="#6f42c1"></div>
+                            <div class="color-option selected" style="background-color: #FF0000;" data-color="#FF0000"></div>
+                            <div class="color-option" style="background-color: #FF6600;" data-color="#FF6600"></div>
+                            <div class="color-option" style="background-color: #FFFF00;" data-color="#FFFF00"></div>
+                            <div class="color-option" style="background-color: #39FF14;" data-color="#39FF14"></div>
+                            <div class="color-option" style="background-color: #0000FF;" data-color="#0000FF"></div>
                             <div class="color-picker-wrapper">
                                 <div class="color-more-btn" onclick="toggleColorDropdown(event, 'inputColorDropdown')" title="More colors">+</div>
                                 <div class="color-dropdown" id="inputColorDropdown">
@@ -1147,7 +1167,7 @@
     <script>
         let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
         let selectedPriority = 1;
-        let selectedColor = '#1a73e8';
+        let selectedColor = '#FF073A';
         let taskSubheadings = JSON.parse(localStorage.getItem('taskSubheadings')) || ['General'];
         let collapsedSubheadings = JSON.parse(localStorage.getItem('collapsedSubheadings')) || {};
         let completedTasksCollapsed = JSON.parse(localStorage.getItem('completedTasksCollapsed')) || false;
@@ -1513,13 +1533,13 @@
         }
 
         const extendedColors = [
-            '#1a73e8', '#dc3545', '#28a745', '#ffc107', '#6f42c1',
-            '#17a2b8', '#fd7e14', '#e83e8c', '#20c997', '#6c757d',
-            '#007bff', '#6610f2', '#e91e63', '#00bcd4', '#8bc34a',
-            '#ff5722', '#795548', '#9c27b0', '#3f51b5', '#009688'
-        ];
+            '#8B00FF', '#FF00FF', '#BC13FE', '#FF1493', '#7B68EE',
+            '#000000', '#FFFFFF', '#808080', '#A52A2A', '#800000',
+            '#008000', '#000080', '#800080', '#008080', '#C0C0C0',
+            '#FF073A', '#00FF00', '#00FFFF', '#FFD700', '#FF00FF'
+        ];  
 
-        const primaryColors = ['#1a73e8', '#dc3545', '#28a745', '#ffc107', '#6f42c1'];
+        const primaryColors = ['#FF0000', '#FF6600', '#FFFF00', '#39FF14', '#0000FF'];
 
         function toggleColorDropdown(event, dropdownId) {
             event.stopPropagation();
@@ -1538,12 +1558,24 @@
             const grid = document.getElementById(gridId);
             if (!grid) return;
             
-            grid.innerHTML = extendedColors.map(color => 
+            const colorOptions = extendedColors.slice(0, 19).map(color => 
                 `<div class="color-option" 
                       style="background-color: ${color}" 
                       data-color="${color}"
                       onclick="selectExtendedColor(event, '${color}', ${taskId})"></div>`
             ).join('');
+            
+            const customPickerId = taskId ? `customColor-${taskId}` : 'customColor-input';
+            const customPicker = `
+                <div class="color-option custom-color-picker" style="position: relative; overflow: hidden;">
+                    <input type="color" id="${customPickerId}" 
+                           style="position: absolute; width: 40px; height: 40px; top: -10px; left: -10px; cursor: pointer; border: none; padding: 0;"
+                           onchange="selectExtendedColor(event, this.value, ${taskId})">
+                    <i class="fas fa-eyedropper" style="font-size: 10px; color: #666; pointer-events: none;"></i>
+                </div>
+            `;
+            
+            grid.innerHTML = colorOptions + customPicker;
         }
 
         function selectExtendedColor(event, color, taskId) {
@@ -2091,7 +2123,7 @@
                 }
             });
             
-            selectedColor = '#1a73e8';
+            selectedColor = '#FF073A';
             const colorOptions = document.querySelectorAll('#taskColorPicker .color-option');
             colorOptions.forEach((option, index) => {
                 if (index === 0) {
