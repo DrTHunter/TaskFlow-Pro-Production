@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Task Management System</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+    <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
     <style>
         * {
             box-sizing: border-box;
@@ -51,13 +53,16 @@
 
         .input-section {
             display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
+            flex-direction: column;
+            gap: 12px;
             margin-bottom: 15px;
             transition: all 0.3s ease;
             overflow: hidden;
-            border-bottom: 1px solid #ddd;
-            padding-bottom: 15px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 20px;
+            background-color: #fff;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
         }
 
         .input-section.collapsed {
@@ -65,8 +70,118 @@
             margin-bottom: 0;
             opacity: 0;
             visibility: hidden;
-            border-bottom: none;
-            padding-bottom: 0;
+            padding: 0;
+            border: none;
+        }
+
+        .input-section .task-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 0;
+        }
+
+        .input-section .task-title-input {
+            flex: 1;
+            font-size: 16px;
+            font-weight: 500;
+            padding: 10px 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+        }
+
+        .input-section .task-title-input:focus {
+            outline: none;
+            border-color: #1a73e8;
+            box-shadow: 0 0 0 2px rgba(26, 115, 232, 0.1);
+        }
+
+        .input-section .subheading-selector {
+            margin: 0;
+        }
+
+        .input-section .subheading-selector select {
+            padding: 8px 12px;
+            border-radius: 6px;
+            border: 1px solid #ddd;
+            font-size: 13px;
+            min-width: 200px;
+        }
+
+        .input-section .current-step {
+            width: 100%;
+            min-height: 38px;
+            height: 38px;
+            padding: 10px 12px;
+            border-radius: 6px;
+            font-size: 14px;
+            resize: none;
+            overflow: hidden;
+            line-height: 1.3;
+        }
+
+        .input-section .task-meta {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 6px;
+            margin: 5px 0;
+        }
+
+        .input-section .task-meta-item {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .input-section .task-meta-item > span {
+            font-weight: 500;
+            color: #555;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .input-section .datetime-row {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .input-section .datetime-row input {
+            padding: 6px 8px;
+            border-radius: 4px;
+            font-size: 13px;
+        }
+
+        .input-section .datetime-label {
+            font-size: 11px;
+            color: #888;
+        }
+
+        .input-section .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 5px;
+            padding-top: 15px;
+            border-top: 1px solid #eee;
+        }
+
+        .input-section .form-actions button {
+            padding: 10px 20px;
+            font-size: 14px;
+            border-radius: 6px;
+        }
+
+        .input-section .form-actions .btn-primary {
+            background-color: #1a73e8;
+        }
+
+        .input-section .form-actions .btn-secondary {
+            background-color: #6c757d;
         }
 
         .wide-input-section {
@@ -139,12 +254,130 @@
         }
 
         .task-item {
-            padding: 12px;
+            padding: 16px;
             background-color: white;
-            margin-bottom: 8px;
-            border-radius: 4px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            margin-bottom: 10px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
             position: relative;
+            border: 1px solid #e0e0e0;
+        }
+
+        .task-item .task-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 12px;
+            padding-right: 80px;
+        }
+
+        .task-item .task-title {
+            flex: 1;
+            font-weight: 600;
+            font-size: 16px;
+            min-width: 200px;
+            word-wrap: break-word;
+            min-height: 24px;
+            padding: 8px 10px;
+            border: 1px solid transparent;
+            border-radius: 6px;
+            width: auto;
+            background-color: #f8f9fa;
+        }
+
+        .task-item .task-title:hover,
+        .task-item .task-title:focus {
+            border-color: #ddd;
+            background-color: #fff;
+            outline: none;
+        }
+
+        .task-item .complete-checkbox {
+            margin-left: 0;
+        }
+
+        .task-item .subheading-selector {
+            position: static;
+            margin-bottom: 12px;
+        }
+
+        .task-item .subheading-selector select {
+            padding: 6px 10px;
+            border-radius: 6px;
+            border: 1px solid #ddd;
+            font-size: 13px;
+            min-width: 150px;
+        }
+
+        .task-item .current-step {
+            width: 100%;
+            min-height: 38px;
+            padding: 10px 12px;
+            border-radius: 6px;
+            font-size: 14px;
+            margin: 0 0 12px 0;
+            border: 1px solid #ddd;
+            background-color: #fff;
+        }
+
+        .task-item .current-step:focus {
+            outline: none;
+            border-color: #1a73e8;
+            box-shadow: 0 0 0 2px rgba(26, 115, 232, 0.1);
+        }
+
+        .task-item .task-meta {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 12px;
+            padding: 12px;
+            background-color: #f8f9fa;
+            border-radius: 6px;
+            margin: 0;
+            font-size: 13px;
+        }
+
+        .task-item .task-meta-item {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .task-item .task-meta-item > span:first-child {
+            font-weight: 500;
+            color: #555;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .task-item .datetime-row {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .task-item .datetime-row input {
+            padding: 5px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            border: 1px solid #ddd;
+        }
+
+        .task-item .datetime-label {
+            font-size: 10px;
+            color: #888;
+        }
+
+        .task-item .timeline-container {
+            grid-column: 1 / -1;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding-top: 8px;
+            border-top: 1px solid #eee;
+            margin-top: 4px;
         }
 
         .priority-high { border-left: 4px solid #dc3545; }
@@ -179,12 +412,20 @@
         .complete-checkbox {
             display: flex;
             align-items: center;
-            gap: 5px;
+            gap: 8px;
             white-space: nowrap;
-            margin-left: 10px;
-            flex-shrink: 1;
-            min-width: 0;
-            overflow: hidden;
+            flex-shrink: 0;
+        }
+
+        .complete-checkbox input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+
+        .complete-checkbox-label {
+            font-size: 13px;
+            color: #555;
         }
 
         .current-step {
@@ -218,14 +459,45 @@
             gap: 5px;
         }
 
+        .datetime-item {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .datetime-row {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+        }
+
+        .datetime-label {
+            font-size: 10px;
+            color: #888;
+        }
+
         .notes-header {
             display: flex;
             align-items: center;
+            justify-content: space-between;
             gap: 8px;
             margin: 10px 0;
+            padding: 8px;
             cursor: pointer;
             color: #1a73e8;
             font-size: 0.9em;
+            background-color: #f8f9fa;
+            border-radius: 4px;
+            user-select: none;
+        }
+
+        .notes-header::after {
+            content: '▼';
+            font-size: 0.7em;
+            transition: transform 0.3s;
+        }
+
+        .notes-header.expanded::after {
+            transform: rotate(180deg);
         }
 
         .notes-content {
@@ -236,12 +508,13 @@
 
         .notes-content.expanded {
             max-height: 1000px;
+            padding-top: 10px;
         }
 
         .task-controls {
             position: absolute;
-            top: 12px;
-            right: 12px;
+            top: 16px;
+            right: 16px;
             display: flex;
             gap: 8px;
             align-items: center;
@@ -250,14 +523,27 @@
         .delete-btn {
             background-color: #dc3545;
             padding: 6px 12px;
+            border-radius: 6px;
         }
 
         .move-buttons {
             position: absolute;
-            top: 50px;
-            right: 12px;
+            top: 55px;
+            right: 16px;
             display: flex;
             gap: 5px;
+        }
+
+        .move-buttons button {
+            padding: 4px 10px;
+            font-size: 12px;
+            border-radius: 4px;
+            background-color: #e0e0e0;
+            color: #333;
+        }
+
+        .move-buttons button:hover {
+            background-color: #d0d0d0;
         }
 
         .search-container {
@@ -291,6 +577,18 @@
             line-height: 1.4;
             overflow-y: hidden;
             word-wrap: break-word;
+        }
+
+        .quill-editor {
+            min-height: 150px;
+        }
+
+        .quill-editor .ql-editor {
+            min-height: 120px;
+        }
+
+        .notes-content .ql-container {
+            border-radius: 6px;
         }
 
         .star-rating {
@@ -605,42 +903,73 @@
                 </div>
             </div>
             
-            <div class="input-section collapsed wide-input-section">
-                <div class="input-group">
-                    <input type="text" id="taskTitle" placeholder="Task title">
-                </div>
-                <div class="input-group">
-                    <label for="taskStart">Start Date</label>
-                    <input type="date" id="taskStart">
-                </div>
-                <div class="input-group">
-                    <label for="taskDue">Due Date</label>
-                    <input type="date" id="taskDue">
-                </div>
-                <div class="input-group">
-                    <label>Priority</label>
-                    <div class="star-rating" id="priorityStars">
-                        <i class="fas fa-star" data-value="1"></i>
-                        <i class="fas fa-star" data-value="2"></i>
-                        <i class="fas fa-star" data-value="3"></i>
-                        <i class="fas fa-star" data-value="4"></i>
-                        <i class="fas fa-star" data-value="5"></i>
+            <div class="input-section collapsed">
+                <div class="task-header">
+                    <input type="text" id="taskTitle" placeholder="Task title" class="task-title-input">
+                    <div class="complete-checkbox">
+                        <input type="checkbox" id="newTaskComplete" disabled>
+                        <label for="newTaskComplete" class="complete-checkbox-label">Complete</label>
                     </div>
                 </div>
-                <div class="input-group">
-                    <label>Color</label>
-                    <div class="color-picker" id="taskColorPicker">
-                        <div class="color-option selected" style="background-color: #1a73e8;" data-color="#1a73e8"></div>
-                        <div class="color-option" style="background-color: #dc3545;" data-color="#dc3545"></div>
-                        <div class="color-option" style="background-color: #28a745;" data-color="#28a745"></div>
-                        <div class="color-option" style="background-color: #ffc107;" data-color="#ffc107"></div>
-                        <div class="color-option" style="background-color: #6f42c1;" data-color="#6f42c1"></div>
-                    </div>
-                </div>
-                <button onclick="addTask()">Add Task</button>
                 
-                <div class="notes-container">
-                    <textarea id="taskNotes" class="large-notes" placeholder="Notes..."></textarea>
+                <div class="subheading-selector">
+                    <select id="newTaskSubheadingSelect">
+                        <option value="">Select subheading</option>
+                    </select>
+                </div>
+                
+                <textarea class="current-step" id="newTaskCurrentStep" placeholder="What's the current step for this task?" oninput="autoResizeTextarea(this)"></textarea>
+                
+                <div class="task-meta">
+                    <div class="task-meta-item">
+                        <span>Priority</span>
+                        <div class="star-rating" id="priorityStars">
+                            <i class="fas fa-star" data-value="1"></i>
+                            <i class="fas fa-star" data-value="2"></i>
+                            <i class="fas fa-star" data-value="3"></i>
+                            <i class="fas fa-star" data-value="4"></i>
+                            <i class="fas fa-star" data-value="5"></i>
+                        </div>
+                    </div>
+                    
+                    <div class="task-meta-item datetime-item">
+                        <span>Start</span>
+                        <div class="datetime-row">
+                            <input type="date" id="taskStartDate">
+                            <input type="time" id="taskStartTime">
+                        </div>
+                    </div>
+                    
+                    <div class="task-meta-item datetime-item">
+                        <span>Due</span>
+                        <div class="datetime-row">
+                            <input type="date" id="taskDueDate">
+                            <input type="time" id="taskDueTime">
+                        </div>
+                    </div>
+                    
+                    <div class="task-meta-item">
+                        <span>Color</span>
+                        <div class="color-picker" id="taskColorPicker">
+                            <div class="color-option selected" style="background-color: #1a73e8;" data-color="#1a73e8"></div>
+                            <div class="color-option" style="background-color: #dc3545;" data-color="#dc3545"></div>
+                            <div class="color-option" style="background-color: #28a745;" data-color="#28a745"></div>
+                            <div class="color-option" style="background-color: #ffc107;" data-color="#ffc107"></div>
+                            <div class="color-option" style="background-color: #6f42c1;" data-color="#6f42c1"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="notes-header" onclick="toggleNewTaskNotes(this)">
+                    Notes
+                </div>
+                <div class="notes-content">
+                    <div id="taskNotesEditor" class="quill-editor"></div>
+                </div>
+                
+                <div class="form-actions">
+                    <button onclick="clearTaskForm()" class="btn-secondary">Clear</button>
+                    <button onclick="addTask()" class="btn-primary">Add Task</button>
                 </div>
             </div>
 
@@ -671,6 +1000,8 @@
         let taskSubheadings = JSON.parse(localStorage.getItem('taskSubheadings')) || ['General'];
         let collapsedSubheadings = JSON.parse(localStorage.getItem('collapsedSubheadings')) || {};
         let completedTasksCollapsed = JSON.parse(localStorage.getItem('completedTasksCollapsed')) || false;
+        let quillInput = null;
+        let taskQuillEditors = {};
 
         function autoResizeTextarea(textarea) {
             textarea.style.height = 'auto';
@@ -682,13 +1013,92 @@
             textarea.style.height = textarea.scrollHeight + 'px';
         }
 
+        function stripHtml(value) {
+            if (!value) return '';
+            const div = document.createElement('div');
+            div.innerHTML = value;
+            return (div.textContent || '').trim();
+        }
+
+        function getQuillHTML(instance) {
+            if (!instance) return '';
+            const plain = instance.getText().trim();
+            if (!plain) return '';
+            return instance.root.innerHTML;
+        }
+
+        function initializeInputQuill() {
+            const target = document.getElementById('taskNotesEditor');
+            if (!target) return;
+            quillInput = new Quill('#taskNotesEditor', {
+                theme: 'snow',
+                placeholder: 'Add any additional notes here...',
+                modules: {
+                    toolbar: [
+                        ['bold', 'italic', 'underline', 'strike'],
+                        ['blockquote', 'code-block'],
+                        [{ 'header': 1 }, { 'header': 2 }],
+                        [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                        [{ 'script': 'sub'}, { 'script': 'super' }],
+                        [{ 'indent': '-1'}, { 'indent': '+1' }],
+                        [{ 'direction': 'rtl' }],
+                        [{ 'size': ['small', false, 'large', 'huge'] }],
+                        [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
+                        [{ 'color': [] }, { 'background': [] }],
+                        [{ 'font': [] }],
+                        [{ 'align': [] }],
+                        ['clean'],
+                        ['link', 'image', 'video']
+                    ]
+                }
+            });
+        }
+
+        function initializeTaskQuillEditor(taskId, content) {
+            const selector = `#task-notes-editor-${taskId}`;
+            const target = document.querySelector(selector);
+            if (!target || taskQuillEditors[taskId]) return;
+
+            const editor = new Quill(selector, {
+                theme: 'snow',
+                placeholder: 'Add notes...',
+                modules: {
+                    toolbar: [
+                        ['bold', 'italic', 'underline', 'strike'],
+                        ['blockquote', 'code-block'],
+                        [{ 'header': 1 }, { 'header': 2 }],
+                        [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                        [{ 'script': 'sub'}, { 'script': 'super' }],
+                        [{ 'indent': '-1'}, { 'indent': '+1' }],
+                        [{ 'direction': 'rtl' }],
+                        [{ 'size': ['small', false, 'large', 'huge'] }],
+                        [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
+                        [{ 'color': [] }, { 'background': [] }],
+                        [{ 'font': [] }],
+                        [{ 'align': [] }],
+                        ['clean'],
+                        ['link', 'image', 'video']
+                    ]
+                }
+            });
+
+            const initialContent = content || '';
+            if (initialContent) {
+                editor.clipboard.dangerouslyPasteHTML(initialContent);
+            }
+
+            editor.on('text-change', () => {
+                const html = getQuillHTML(editor);
+                updateTaskField(taskId, 'notes', html);
+            });
+
+            taskQuillEditors[taskId] = editor;
+        }
+
         function initAutoResize() {
-            const notesTextarea = document.getElementById('taskNotes');
-            if (notesTextarea) {
-                autoResizeNotes(notesTextarea);
-                notesTextarea.addEventListener('input', function() {
-                    autoResizeNotes(this);
-                });
+            const currentStepTextarea = document.getElementById('newTaskCurrentStep');
+            if (currentStepTextarea) {
+                autoResizeTextarea(currentStepTextarea);
             }
         }
 
@@ -707,9 +1117,8 @@
                 toggleBtn.innerHTML = '<i class="fas fa-plus"></i> New Task';
             } else {
                 toggleBtn.innerHTML = 'Hide Form';
-                const notesTextarea = document.getElementById('taskNotes');
-                if (notesTextarea) {
-                    autoResizeNotes(notesTextarea);
+                if (quillInput) {
+                    setTimeout(() => quillInput.focus(), 0);
                 }
             }
         }
@@ -977,25 +1386,69 @@
                     selectedColor = option.getAttribute('data-color');
                 });
             });
+            
+            // Populate subheading select
+            updateNewTaskSubheadingSelect();
+        }
+
+        // Function to update the subheading select dropdown
+        function updateNewTaskSubheadingSelect() {
+            const select = document.getElementById('newTaskSubheadingSelect');
+            if (select) {
+                select.innerHTML = '<option value="">Select subheading</option>' +
+                    taskSubheadings.map(sh => `<option value="${sh}">${sh}</option>`).join('');
+                if (taskSubheadings.length > 0) {
+                    select.value = taskSubheadings[0];
+                }
+            }
+        }
+
+        // Function to toggle notes in the new task form
+        function toggleNewTaskNotes(header) {
+            const content = header.nextElementSibling;
+            content.classList.toggle('expanded');
+            header.classList.toggle('expanded');
+
+            if (content.classList.contains('expanded') && quillInput) {
+                setTimeout(() => {
+                    quillInput.focus();
+                }, 0);
+            }
         }
 
         function addTask() {
+            const subheadingSelect = document.getElementById('newTaskSubheadingSelect');
+            const selectedSubheading = subheadingSelect ? subheadingSelect.value : taskSubheadings[0];
+            
+            if (!selectedSubheading) {
+                alert('Please select a subheading');
+                return;
+            }
+            
             const priorityText = 
                 selectedPriority >= 4 ? 'high' : 
                 selectedPriority >= 2 ? 'medium' : 'low';
 
+            const startDate = document.getElementById('taskStartDate').value;
+            const startTime = document.getElementById('taskStartTime').value;
+            const dueDate = document.getElementById('taskDueDate').value;
+            const dueTime = document.getElementById('taskDueTime').value;
+            const notesHtml = getQuillHTML(quillInput);
+
             const task = {
                 id: Date.now(),
                 title: document.getElementById('taskTitle').value.trim(),
-                start: document.getElementById('taskStart').value,
-                due: document.getElementById('taskDue').value,
+                startDate: startDate,
+                startTime: startTime,
+                dueDate: dueDate,
+                dueTime: dueTime,
                 priority: priorityText,
                 priorityValue: selectedPriority,
-                notes: document.getElementById('taskNotes').value,
-                currentStep: '',
+                notes: notesHtml,
+                currentStep: document.getElementById('newTaskCurrentStep').value,
                 completed: false,
                 created: new Date().toISOString(),
-                subheading: taskSubheadings[0],
+                subheading: selectedSubheading,
                 color: selectedColor
             };
 
@@ -1008,6 +1461,7 @@
         }
 
         function renderTasks() {
+            taskQuillEditors = {};
             renderSubheadings('task');
         }
 
@@ -1015,10 +1469,13 @@
             const taskElement = document.createElement('div');
             taskElement.className = `task-item priority-${task.priority} ${task.completed ? 'completed' : ''}`;
             taskElement.setAttribute('data-id', task.id);
+            taskElement.style.borderLeftColor = task.color || '#1a73e8';
+            taskElement.style.borderLeftWidth = '4px';
+            taskElement.style.borderLeftStyle = 'solid';
             
             let timelineHTML = '';
-            if (task.start && task.due) {
-                const progress = calculateTimelineProgress(task.start, task.due);
+            if (task.startDate && task.dueDate) {
+                const progress = calculateTimelineProgress(task.startDate, task.dueDate);
                 
                 let progressColor;
                 if (progress.percentage < 33) {
@@ -1031,11 +1488,12 @@
                 
                 timelineHTML = `
                     <div class="timeline-container">
+                        <span>Progress:</span>
                         <div class="timeline-bar">
                             <div class="timeline-progress" style="width: ${progress.percentage}%; background-color: ${progressColor}"></div>
                         </div>
                         <div class="timeline-dates">
-                            <span>${formatDate(task.due)}</span>
+                            <span>Due: ${formatDate(task.dueDate)} ${task.dueTime ? task.dueTime : ''}</span>
                         </div>
                     </div>
                 `;
@@ -1076,45 +1534,61 @@
                         </button>
                     </div>
                 </div>
+                
                 <div class="subheading-selector">
                     <select onchange="updateTaskField(${task.id}, 'subheading', this.value)">
                         ${subheadingOptions}
                     </select>
                 </div>
-                <textarea class="current-step" placeholder="Current step..." 
+                
+                <textarea class="current-step" placeholder="What's the current step?" 
                        oninput="updateTaskField(${task.id}, 'currentStep', this.value); autoResizeTextarea(this)">${task.currentStep || ''}</textarea>
+                
                 <div class="task-meta">
                     <div class="task-meta-item">
-                        <span>Priority:</span>
+                        <span>Priority</span>
                         <div class="star-rating">
                             ${starsHTML}
                         </div>
                     </div>
-                    <div class="task-meta-item">
-                        <span>Start:</span>
-                        <input type="date" value="${task.start}" 
-                               onchange="updateTaskField(${task.id}, 'start', this.value)">
+                    
+                    <div class="task-meta-item datetime-item">
+                        <span>Start</span>
+                        <div class="datetime-row">
+                            <input type="date" value="${task.startDate || ''}" 
+                                   onchange="updateTaskField(${task.id}, 'startDate', this.value)">
+                            <input type="time" value="${task.startTime || ''}" 
+                                   onchange="updateTaskField(${task.id}, 'startTime', this.value)">
+                        </div>
                     </div>
-                    <div class="task-meta-item">
-                        <span>Due:</span>
-                        <input type="date" value="${task.due}" 
-                               onchange="updateTaskField(${task.id}, 'due', this.value)">
+                    
+                    <div class="task-meta-item datetime-item">
+                        <span>Due</span>
+                        <div class="datetime-row">
+                            <input type="date" value="${task.dueDate || ''}" 
+                                   onchange="updateTaskField(${task.id}, 'dueDate', this.value)">
+                            <input type="time" value="${task.dueTime || ''}" 
+                                   onchange="updateTaskField(${task.id}, 'dueTime', this.value)">
+                        </div>
                     </div>
+                    
                     <div class="task-meta-item">
-                        <span>Color:</span>
+                        <span>Color</span>
                         <div class="color-picker">
                             ${colorOptions}
                         </div>
                     </div>
+                    
                     ${timelineHTML}
                 </div>
+                
                 <div class="notes-header" onclick="toggleNotes(this)">
                     Notes
                 </div>
-                <div class="notes-content">
-                    <textarea oninput="updateTaskField(${task.id}, 'notes', this.value); autoResizeNotes(this)"
-                              style="width:100%; min-height: 120px;">${task.notes}</textarea>
+                <div class="notes-content" data-task-id="${task.id}">
+                    <div id="task-notes-editor-${task.id}" class="quill-editor"></div>
                 </div>
+                
                 <div class="move-buttons">
                     <button onclick="moveTask(${task.id}, 'up')">↑</button>
                     <button onclick="moveTask(${task.id}, 'down')">↓</button>
@@ -1124,19 +1598,9 @@
             const currentStepTextarea = taskElement.querySelector('.current-step');
             autoResizeTextarea(currentStepTextarea);
             
-            const notesHeader = taskElement.querySelector('.notes-header');
-            const notesContent = taskElement.querySelector('.notes-content');
-            const notesTextarea = taskElement.querySelector('.notes-content textarea');
-            
-            if (notesTextarea) {
-                notesTextarea.addEventListener('input', function() {
-                    autoResizeNotes(this);
-                });
-                
-                if (notesContent.classList.contains('expanded')) {
-                    autoResizeNotes(notesTextarea);
-                }
-            }
+            setTimeout(() => {
+                initializeTaskQuillEditor(task.id, task.notes || '');
+            }, 0);
             
             return taskElement;
         }
@@ -1239,18 +1703,19 @@
             const content = header.nextElementSibling;
             content.classList.toggle('expanded');
 
-            const textareas = content.querySelectorAll('textarea');
-            textareas.forEach(textarea => {
-                autoResizeNotes(textarea);
-                textarea.addEventListener('input', () => autoResizeNotes(textarea));
-            });
+            const taskId = content.getAttribute('data-task-id');
+            if (taskId && taskQuillEditors[taskId] && content.classList.contains('expanded')) {
+                setTimeout(() => {
+                    taskQuillEditors[taskId].focus();
+                }, 0);
+            }
         }
 
         function searchTasks() {
             const searchTerm = document.getElementById('taskSearch').value.toLowerCase();
             const filtered = tasks.filter(t => 
                 t.title.toLowerCase().includes(searchTerm) ||
-                (t.notes && t.notes.toLowerCase().includes(searchTerm)) ||
+                (stripHtml(t.notes).toLowerCase().includes(searchTerm)) ||
                 (t.currentStep && t.currentStep.toLowerCase().includes(searchTerm))
             );
             
@@ -1316,11 +1781,27 @@
 
         function clearTaskForm() {
             document.getElementById('taskTitle').value = '';
-            document.getElementById('taskStart').value = '';
-            document.getElementById('taskDue').value = '';
-            document.getElementById('taskNotes').value = '';
-            const notesTextarea = document.getElementById('taskNotes');
-            notesTextarea.style.height = 'auto';
+            document.getElementById('newTaskCurrentStep').value = '';
+            document.getElementById('taskStartDate').value = '';
+            document.getElementById('taskStartTime').value = '';
+            document.getElementById('taskDueDate').value = '';
+            document.getElementById('taskDueTime').value = '';
+            if (quillInput) {
+                quillInput.setContents([]);
+            }
+            
+            const notesContent = document.querySelector('.input-section .notes-content');
+            const notesHeader = document.querySelector('.input-section .notes-header');
+            if (notesContent && notesHeader) {
+                notesContent.classList.remove('expanded');
+                notesHeader.classList.remove('expanded');
+            }
+            
+            const currentStepTextarea = document.getElementById('newTaskCurrentStep');
+            if (currentStepTextarea) {
+                currentStepTextarea.style.height = 'auto';
+            }
+            
             selectedPriority = 1;
             const stars = document.querySelectorAll('#priorityStars i');
             stars.forEach((star, index) => {
@@ -1330,6 +1811,7 @@
                     star.classList.remove('active');
                 }
             });
+            
             selectedColor = '#1a73e8';
             const colorOptions = document.querySelectorAll('#taskColorPicker .color-option');
             colorOptions.forEach((option, index) => {
@@ -1339,12 +1821,23 @@
                     option.classList.remove('selected');
                 }
             });
+            
+            // Reset subheading select to first option
+            const subheadingSelect = document.getElementById('newTaskSubheadingSelect');
+            if (subheadingSelect && taskSubheadings.length > 0) {
+                subheadingSelect.value = taskSubheadings[0];
+            }
+            
+            // Hide timeline
+            const timeline = document.getElementById('newTaskTimeline');
+            if (timeline) timeline.style.display = 'none';
         }
 
         function saveTasks() { localStorage.setItem('tasks', JSON.stringify(tasks)); }
 
         window.onload = () => {
             setupStarRating();
+            initializeInputQuill();
             renderTasks();
             initAutoResize();
             
