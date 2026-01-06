@@ -39,23 +39,52 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 15px;
         }
 
         .content-title {
             font-size: 18px;
             font-weight: 600;
             color: #333;
+            white-space: nowrap;
+        }
+
+        .search-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .search-bar {
+            width: 250px;
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 13px;
+        }
+
+        .filter-btn {
+            padding: 6px 10px;
+            font-size: 11px;
+            background-color: #6c757d;
+            white-space: nowrap;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
         }
 
         .tab-content {
-            display: none;
             padding: 20px;
             overflow-y: auto;
             flex: 1;
-        }
-
-        .tab-content.active {
-            display: block;
         }
 
         /* Notes Tab Specific Styles */
@@ -122,6 +151,7 @@
             cursor: pointer;
             color: #1a73e8;
             font-size: 0.9em;
+            user-select: none;
         }
 
         .notes-content {
@@ -281,9 +311,13 @@
         .new-item-btn {
             min-width: 120px;
             margin-right: 10px;
-            padding: 6px 10px;
+            padding: 8px 15px;
             font-size: 13px;
             background-color: #28a745;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .new-subheading-bar {
@@ -471,24 +505,49 @@
                 margin-right: 0;
                 white-space: normal;
             }
+
+            .content-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+            
+            .header-left {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+                width: 100%;
+            }
+            
+            .search-container {
+                width: 100%;
+            }
+            
+            .search-bar {
+                width: 100%;
+                max-width: none;
+            }
         }
     </style>
 </head>
 <body>
     <div class="main-content">
+        <!-- Notes Header (Updated to match Contacts) -->
         <div class="content-header">
-            <div class="content-title" id="contentTitle">Notes Tool</div>
+            <div class="header-left">
+                <div class="content-title">Notes</div>
+                <div class="search-container">
+                    <input type="text" class="search-bar" id="noteSearch" placeholder="Search notes..." oninput="searchNotes()">
+                </div>
+            </div>
         </div>
 
-        <!-- Notes Tab -->
-        <div id="notes" class="tab-content active">
+        <!-- Notes Tab Content -->
+        <div class="tab-content">
             <div style="display: flex; align-items: center; margin-bottom: 15px;">
                 <button class="new-item-btn" onclick="toggleInputs('notes')">
                     <i class="fas fa-plus"></i> New Note
                 </button>
-                <div class="search-container">
-                    <input type="text" class="search-bar" id="noteSearch" placeholder="Search notes..." oninput="searchNotes()">
-                </div>
             </div>
             
             <div class="input-section collapsed">
@@ -567,8 +626,8 @@
 
         // Toggle input sections
         function toggleInputs(tab) {
-            const inputSection = document.querySelector(`#${tab} .input-section`);
-            const toggleBtn = document.querySelector(`#${tab} .new-item-btn`);
+            const inputSection = document.querySelector(`.input-section`);
+            const toggleBtn = document.querySelector(`.new-item-btn`);
             
             inputSection.classList.toggle('collapsed');
             
@@ -1026,7 +1085,7 @@
             renderNotes();
             
             // Collapse input section by default
-            const notesInputSection = document.querySelector('#notes .input-section');
+            const notesInputSection = document.querySelector('.input-section');
             if (notesInputSection) {
                 notesInputSection.classList.add('collapsed');
             }
