@@ -181,40 +181,64 @@
             height: 16px;
         }
 
-        .color-picker-input {
-            width: 20px;
-            height: 20px;
-            padding: 0;
-            border: 2px solid #ddd;
+        .color-picker-wrapper {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+        }
+
+        .color-more-btn {
+            width: 16px;
+            height: 16px;
             border-radius: 50%;
             cursor: pointer;
-            -webkit-appearance: none;
-            appearance: none;
-            background: none;
+            border: 2px solid #ddd;
+            background: conic-gradient(red, yellow, lime, aqua, blue, magenta, red);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            color: white;
+            text-shadow: 0 0 2px rgba(0,0,0,0.5);
         }
 
-        .color-picker-input::-webkit-color-swatch-wrapper {
-            padding: 0;
+        .color-more-btn:hover {
+            border-color: #999;
         }
 
-        .color-picker-input::-webkit-color-swatch {
-            border: none;
-            border-radius: 50%;
-        }
-
-        .color-picker-input::-moz-color-swatch {
-            border: none;
-            border-radius: 50%;
-        }
-
-        .color-picker-input.selected {
+        .color-more-btn.selected {
             border-color: #000;
         }
 
-        .input-section .color-picker-input,
-        .task-item .color-picker-input {
-            width: 16px;
-            height: 16px;
+        .color-dropdown {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            z-index: 1000;
+            margin-top: 5px;
+        }
+
+        .color-dropdown.active {
+            display: block;
+        }
+
+        .color-dropdown-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 6px;
+            width: 130px;
+        }
+
+        .color-dropdown .color-option {
+            width: 20px;
+            height: 20px;
         }
 
         .input-section .datetime-label {
@@ -1077,12 +1101,12 @@
                             <div class="color-option" style="background-color: #28a745;" data-color="#28a745"></div>
                             <div class="color-option" style="background-color: #ffc107;" data-color="#ffc107"></div>
                             <div class="color-option" style="background-color: #6f42c1;" data-color="#6f42c1"></div>
-                            <div class="color-option" style="background-color: #17a2b8;" data-color="#17a2b8"></div>
-                            <div class="color-option" style="background-color: #fd7e14;" data-color="#fd7e14"></div>
-                            <div class="color-option" style="background-color: #e83e8c;" data-color="#e83e8c"></div>
-                            <div class="color-option" style="background-color: #20c997;" data-color="#20c997"></div>
-                            <div class="color-option" style="background-color: #6c757d;" data-color="#6c757d"></div>
-                            <input type="color" class="color-picker-input" id="customColorPicker" value="#1a73e8" title="Choose custom color">
+                            <div class="color-picker-wrapper">
+                                <div class="color-more-btn" onclick="toggleColorDropdown(event, 'inputColorDropdown')" title="More colors">+</div>
+                                <div class="color-dropdown" id="inputColorDropdown">
+                                    <div class="color-dropdown-grid" id="inputColorGrid"></div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -1488,6 +1512,66 @@
             localStorage.setItem('taskSubheadings', JSON.stringify(taskSubheadings));
         }
 
+        const extendedColors = [
+            '#1a73e8', '#dc3545', '#28a745', '#ffc107', '#6f42c1',
+            '#17a2b8', '#fd7e14', '#e83e8c', '#20c997', '#6c757d',
+            '#007bff', '#6610f2', '#e91e63', '#00bcd4', '#8bc34a',
+            '#ff5722', '#795548', '#9c27b0', '#3f51b5', '#009688'
+        ];
+
+        const primaryColors = ['#1a73e8', '#dc3545', '#28a745', '#ffc107', '#6f42c1'];
+
+        function toggleColorDropdown(event, dropdownId) {
+            event.stopPropagation();
+            const dropdown = document.getElementById(dropdownId);
+            const wasActive = dropdown.classList.contains('active');
+            
+            // Close all dropdowns first
+            document.querySelectorAll('.color-dropdown').forEach(d => d.classList.remove('active'));
+            
+            if (!wasActive) {
+                dropdown.classList.add('active');
+            }
+        }
+
+        function populateColorDropdown(gridId, taskId) {
+            const grid = document.getElementById(gridId);
+            if (!grid) return;
+            
+            grid.innerHTML = extendedColors.map(color => 
+                `<div class="color-option" 
+                      style="background-color: ${color}" 
+                      data-color="${color}"
+                      onclick="selectExtendedColor(event, '${color}', ${taskId})"></div>`
+            ).join('');
+        }
+
+        function selectExtendedColor(event, color, taskId) {
+            event.stopPropagation();
+            
+            if (taskId) {
+                updateTaskColor(taskId, color);
+            } else {
+                // Input form color selection
+                document.querySelectorAll('#taskColorPicker .color-option').forEach(opt => opt.classList.remove('selected'));
+                const moreBtn = document.querySelector('#taskColorPicker .color-more-btn');
+                
+                // Check if it's a primary color
+                const primaryOption = document.querySelector(`#taskColorPicker > .color-option[data-color="${color}"]`);
+                if (primaryOption) {
+                    primaryOption.classList.add('selected');
+                    moreBtn?.classList.remove('selected');
+                } else {
+                    moreBtn?.classList.add('selected');
+                }
+                
+                selectedColor = color;
+            }
+            
+            // Close dropdown
+            document.querySelectorAll('.color-dropdown').forEach(d => d.classList.remove('active'));
+        }
+
         function setupStarRating() {
             const stars = document.querySelectorAll('#priorityStars i');
             stars.forEach(star => {
@@ -1505,25 +1589,26 @@
                 });
             });
             
-            const colorOptions = document.querySelectorAll('#taskColorPicker .color-option');
-            const customColorPicker = document.getElementById('customColorPicker');
+            const colorOptions = document.querySelectorAll('#taskColorPicker > .color-option');
             
             colorOptions.forEach(option => {
                 option.addEventListener('click', () => {
-                    colorOptions.forEach(opt => opt.classList.remove('selected'));
-                    if (customColorPicker) customColorPicker.classList.remove('selected');
+                    document.querySelectorAll('#taskColorPicker .color-option').forEach(opt => opt.classList.remove('selected'));
+                    document.querySelector('#taskColorPicker .color-more-btn')?.classList.remove('selected');
                     option.classList.add('selected');
                     selectedColor = option.getAttribute('data-color');
                 });
             });
             
-            if (customColorPicker) {
-                customColorPicker.addEventListener('input', () => {
-                    colorOptions.forEach(opt => opt.classList.remove('selected'));
-                    customColorPicker.classList.add('selected');
-                    selectedColor = customColorPicker.value;
-                });
-            }
+            // Populate extended color dropdown
+            populateColorDropdown('inputColorGrid', null);
+            
+            // Close dropdowns when clicking outside
+            document.addEventListener('click', (e) => {
+                if (!e.target.closest('.color-picker-wrapper')) {
+                    document.querySelectorAll('.color-dropdown').forEach(d => d.classList.remove('active'));
+                }
+            });
             
             // Populate subheading select
             updateNewTaskSubheadingSelect();
@@ -1647,17 +1732,21 @@
                 `<option value="${sh}" ${task.subheading === sh ? 'selected' : ''}>${sh}</option>`
             ).join('');
 
-            const colors = ['#1a73e8', '#dc3545', '#28a745', '#ffc107', '#6f42c1', '#17a2b8', '#fd7e14', '#e83e8c', '#20c997', '#6c757d'];
-            const isCustomColor = !colors.includes(task.color) && task.color;
-            const colorOptions = colors.map(color => 
+            const isPrimaryColor = primaryColors.includes(task.color);
+            const colorOptionsHTML = primaryColors.map(color => 
                 `<div class="color-option ${task.color === color ? 'selected' : ''}" 
                       style="background-color: ${color}" 
                       data-color="${color}"
                       onclick="updateTaskColor(${task.id}, '${color}')"></div>`
-            ).join('') + `<input type="color" class="color-picker-input ${isCustomColor ? 'selected' : ''}" 
-                      value="${task.color || '#1a73e8'}" 
-                      title="Choose custom color"
-                      onchange="updateTaskColor(${task.id}, this.value)">`;
+            ).join('') + `
+                <div class="color-picker-wrapper">
+                    <div class="color-more-btn ${!isPrimaryColor && task.color ? 'selected' : ''}" 
+                         onclick="toggleColorDropdown(event, 'colorDropdown-${task.id}')" 
+                         title="More colors">+</div>
+                    <div class="color-dropdown" id="colorDropdown-${task.id}">
+                        <div class="color-dropdown-grid" id="colorGrid-${task.id}"></div>
+                    </div>
+                </div>`;
 
             taskElement.innerHTML = `
                 <div class="task-header">
@@ -1716,7 +1805,7 @@
                     <div class="task-meta-item">
                         <span>Color</span>
                         <div class="color-picker">
-                            ${colorOptions}
+                            ${colorOptionsHTML}
                         </div>
                     </div>
                     
@@ -1741,6 +1830,7 @@
             
             setTimeout(() => {
                 initializeTaskQuillEditor(task.id, task.notes || '');
+                populateColorDropdown(`colorGrid-${task.id}`, task.id);
             }, 0);
             
             return taskElement;
