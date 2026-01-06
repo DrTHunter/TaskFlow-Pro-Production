@@ -860,12 +860,12 @@
         .new-subheading-bar {
             display: flex;
             gap: 5px;
-            margin: 10px 0;
-            height: 30px;
+            height: 28px;
             background-color: #e0e0e0;
-            padding: 5px 10px;
+            padding: 4px 10px;
             border-radius: 4px;
             align-items: center;
+            margin: 0;
         }
 
         .new-subheading-input {
@@ -873,6 +873,24 @@
             border: none;
             background: transparent;
             padding: 2px 5px;
+            min-width: 196px;
+            font-size: 13px;
+        }
+
+        .current-header-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+            margin-bottom: 10px;
+        }
+
+        .current-header {
+            margin: 0;
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+        }
             height: 20px;
         }
 
@@ -932,9 +950,10 @@
         }
 
         .new-subheading-bar button {
-            height: 30px !important;
-            padding: 0 10px !important;
-            line-height: 30px !important;
+            height: auto !important;
+            padding: 2px 8px !important;
+            line-height: normal !important;
+            font-size: 12px;
         }
 
         .completed-section {
@@ -1122,6 +1141,24 @@
             transition: transform 0.2s;
         }
 
+        .task-item.compact .compact-move-controls {
+            display: flex;
+            gap: 4px;
+            margin-left: auto;
+        }
+
+        .task-item.compact .compact-move-controls button {
+            padding: 2px 5px;
+            font-size: 11px;
+            background-color: #e0e0e0;
+            color: #333;
+            border-radius: 3px;
+        }
+
+        .task-item.compact .compact-move-controls button:hover {
+            background-color: #d0d0d0;
+        }
+
         .task-item.compact .task-controls,
         .task-item.compact .move-buttons {
             display: none;
@@ -1280,7 +1317,8 @@
                 <div class="sort-container">
                     <label for="taskSortSelect"><i class="fas fa-sort"></i> Sort:</label>
                     <select id="taskSortSelect" class="sort-select" onchange="changeSort(this.value)">
-                        <option value="default">Default (Added Order)</option>
+                        <option value="default">Preferred Order</option>
+                        <option value="added-order">Added Order</option>
                         <option value="priority-high">Priority: High to Low</option>
                         <option value="priority-low">Priority: Low to High</option>
                         <option value="due-earliest">Due Date: Earliest First</option>
@@ -1374,13 +1412,14 @@
                 </div>
             </div>
 
-            <div class="new-subheading-bar">
-                <input type="text" id="newTaskSubheading" class="new-subheading-input" placeholder="New subheading name">
-                <button onclick="addSubheading('task')">Add</button>
-            </div>
-
             <div class="task-list" id="tasksList">
-                <h3 class="current-header">Current Tasks</h3>
+                <div class="current-header-row">
+                    <h3 class="current-header">Current Tasks</h3>
+                    <div class="new-subheading-bar">
+                        <input type="text" id="newTaskSubheading" class="new-subheading-input" placeholder="New subheading name">
+                        <button onclick="addSubheading('task')">Add</button>
+                    </div>
+                </div>
                 <div id="currentList"></div>
                 
                 <div class="completed-section">
@@ -1561,7 +1600,13 @@
             const listContainer = document.getElementById('tasksList');
             
             listContainer.innerHTML = `
-                <h3 class="current-header">Current Tasks</h3>
+                <div class="current-header-row">
+                    <h3 class="current-header">Current Tasks</h3>
+                    <div class="new-subheading-bar">
+                        <input type="text" id="newTaskSubheading" class="new-subheading-input" placeholder="New subheading name">
+                        <button onclick="addSubheading('task')">Add</button>
+                    </div>
+                </div>
                 <div id="currentList"></div>
                 <div class="completed-section">
                     <div class="completed-header" onclick="toggleCompletedTasks()">
@@ -1654,7 +1699,64 @@
             
             if (currentItems.length > 0) {
                 const currentContainer = document.getElementById('currentList');
-                currentContainer.appendChild(subheadingElement.cloneNode(true));
+                
+                // Create subheading element for current tasks (not cloned, with proper event handlers)
+                const currentSubheading = document.createElement('div');
+                currentSubheading.className = 'subheading';
+                currentSubheading.onclick = (e) => {
+                    if (e.target.closest('.subheading-controls')) return;
+                    const key = `${type}-${subheading}`;
+                    collapsedSubheadings[key] = !collapsedSubheadings[key];
+                    localStorage.setItem('collapsedSubheadings', JSON.stringify(collapsedSubheadings));
+                    const content = currentSubheading.nextElementSibling;
+                    content.classList.toggle('collapsed');
+                };
+                
+                const currentInput = document.createElement('input');
+                currentInput.className = 'subheading-input';
+                currentInput.value = subheading;
+                currentInput.placeholder = 'Subheading name';
+                currentInput.onchange = () => updateSubheading(type, index, currentInput.value);
+                
+                const currentControls = document.createElement('div');
+                currentControls.className = 'subheading-controls';
+                
+                const currentUpBtn = document.createElement('button');
+                currentUpBtn.innerHTML = '↑';
+                currentUpBtn.style.padding = '2px 5px';
+                currentUpBtn.onclick = (e) => {
+                    e.stopPropagation();
+                    moveSubheading(type, index, 'up');
+                };
+                currentUpBtn.disabled = index === 0;
+                
+                const currentDownBtn = document.createElement('button');
+                currentDownBtn.innerHTML = '↓';
+                currentDownBtn.style.padding = '2px 5px';
+                currentDownBtn.onclick = (e) => {
+                    e.stopPropagation();
+                    moveSubheading(type, index, 'down');
+                };
+                currentDownBtn.disabled = index === taskSubheadings.length - 1;
+                
+                const currentRemoveBtn = document.createElement('button');
+                currentRemoveBtn.innerHTML = '×';
+                currentRemoveBtn.style.padding = '2px 5px';
+                currentRemoveBtn.style.backgroundColor = '#dc3545';
+                currentRemoveBtn.onclick = (e) => {
+                    e.stopPropagation();
+                    removeSubheading(type, index);
+                };
+                currentRemoveBtn.disabled = taskSubheadings.length <= 1;
+                
+                currentControls.appendChild(currentUpBtn);
+                currentControls.appendChild(currentDownBtn);
+                currentControls.appendChild(currentRemoveBtn);
+                
+                currentSubheading.appendChild(currentInput);
+                currentSubheading.appendChild(currentControls);
+                
+                currentContainer.appendChild(currentSubheading);
                 const currentContent = document.createElement('div');
                 currentContent.className = `collapsible-content ${isCollapsed ? 'collapsed' : ''}`;
                 
@@ -1903,6 +2005,13 @@
             }
         }
 
+        function getNextSortOrder(subheading) {
+            const tasksInSubheading = tasks.filter(t => t.subheading === subheading);
+            if (tasksInSubheading.length === 0) return 1;
+            const maxOrder = Math.max(...tasksInSubheading.map(t => t.sortOrder || 0));
+            return maxOrder + 1;
+        }
+
         function addTask() {
             const subheadingSelect = document.getElementById('newTaskSubheadingSelect');
             const selectedSubheading = subheadingSelect ? subheadingSelect.value : taskSubheadings[0];
@@ -1936,7 +2045,8 @@
                 completed: false,
                 created: new Date().toISOString(),
                 subheading: selectedSubheading,
-                color: selectedColor
+                color: selectedColor,
+                sortOrder: getNextSortOrder(selectedSubheading)
             };
 
             if (!task.title) return;
@@ -2105,6 +2215,10 @@
                         ${task.dueDate ? `<span><i class="fas fa-flag"></i> ${formatCompactDate(task.dueDate)}${task.dueTime ? ' ' + task.dueTime : ''}</span>` : ''}
                     </div>
                     ${compactTimelineHTML}
+                    <div class="compact-move-controls">
+                        <button onclick="event.stopPropagation(); moveTask(${task.id}, 'up')">↑</button>
+                        <button onclick="event.stopPropagation(); moveTask(${task.id}, 'down')">↓</button>
+                    </div>
                     <i class="fas fa-chevron-right compact-expand-icon"></i>
                 </div>
                 <div class="full-view">
@@ -2308,12 +2422,30 @@
         }
 
         function moveTask(id, direction) {
-            const index = tasks.findIndex(t => t.id === id);
-            if (direction === 'up' && index > 0) {
-                [tasks[index], tasks[index - 1]] = [tasks[index - 1], tasks[index]];
-            } else if (direction === 'down' && index < tasks.length - 1) {
-                [tasks[index], tasks[index + 1]] = [tasks[index + 1], tasks[index]];
+            const task = tasks.find(t => t.id === id);
+            if (!task) return;
+            
+            // Get tasks in the same subheading with same completion status, sorted by sortOrder
+            const sameSectionTasks = tasks
+                .filter(t => t.subheading === task.subheading && t.completed === task.completed)
+                .sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0));
+            
+            const currentIndex = sameSectionTasks.findIndex(t => t.id === id);
+            
+            if (direction === 'up' && currentIndex > 0) {
+                // Swap sortOrder with the task above
+                const otherTask = sameSectionTasks[currentIndex - 1];
+                const tempOrder = task.sortOrder;
+                task.sortOrder = otherTask.sortOrder;
+                otherTask.sortOrder = tempOrder;
+            } else if (direction === 'down' && currentIndex < sameSectionTasks.length - 1) {
+                // Swap sortOrder with the task below
+                const otherTask = sameSectionTasks[currentIndex + 1];
+                const tempOrder = task.sortOrder;
+                task.sortOrder = otherTask.sortOrder;
+                otherTask.sortOrder = tempOrder;
             }
+            
             saveTasks();
             renderTasks();
         }
@@ -2334,6 +2466,10 @@
             const task = tasks.find(t => t.id === id);
             if (task) {
                 task[field] = value;
+                // Update sortOrder when moving to a new subheading
+                if (field === 'subheading') {
+                    task.sortOrder = getNextSortOrder(value);
+                }
                 saveTasks();
                 if (field === 'subheading') {
                     renderTasks();
@@ -2363,7 +2499,13 @@
             
             const tasksList = document.getElementById('tasksList');
             tasksList.innerHTML = `
-                <h3 class="current-header">Current Tasks</h3>
+                <div class="current-header-row">
+                    <h3 class="current-header">Current Tasks</h3>
+                    <div class="new-subheading-bar">
+                        <input type="text" id="newTaskSubheading" class="new-subheading-input" placeholder="New subheading name">
+                        <button onclick="addSubheading('task')">Add</button>
+                    </div>
+                </div>
                 <div id="currentList"></div>
                 <div class="completed-section">
                     <div class="completed-header" onclick="toggleCompletedTasks()">
@@ -2488,13 +2630,17 @@
         }
 
         function sortTasks(tasksToSort) {
-            if (currentSortMethod === 'default') {
-                return tasksToSort;
-            }
-
             const sorted = [...tasksToSort];
 
             switch (currentSortMethod) {
+                case 'default':
+                    // Preferred order - sort by sortOrder property
+                    sorted.sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0));
+                    break;
+                case 'added-order':
+                    // Sort by creation time (id is Date.now())
+                    sorted.sort((a, b) => a.id - b.id);
+                    break;
                 case 'priority-high':
                     sorted.sort((a, b) => (b.priorityValue || 1) - (a.priorityValue || 1));
                     break;
