@@ -122,12 +122,13 @@
 
         .input-section .task-meta {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-            padding: 15px;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 12px;
+            padding: 12px;
             background-color: #f8f9fa;
             border-radius: 6px;
             margin: 5px 0;
+            align-items: start;
         }
 
         .input-section .task-meta-item {
@@ -154,6 +155,7 @@
             padding: 6px 8px;
             border-radius: 4px;
             font-size: 13px;
+            width: 130px;
         }
 
         .input-section .datetime-label {
@@ -329,13 +331,14 @@
 
         .task-item .task-meta {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-            gap: 12px;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 10px;
             padding: 12px;
             background-color: #f8f9fa;
             border-radius: 6px;
             margin: 0;
             font-size: 13px;
+            align-items: start;
         }
 
         .task-item .task-meta-item {
@@ -364,6 +367,7 @@
             border-radius: 4px;
             font-size: 12px;
             border: 1px solid #ddd;
+            width: 120px;
         }
 
         .task-item .datetime-label {
@@ -376,9 +380,10 @@
             display: flex;
             align-items: center;
             gap: 10px;
-            padding-top: 8px;
+            padding-top: 6px;
             border-top: 1px solid #eee;
-            margin-top: 4px;
+            margin-top: 2px;
+            flex-wrap: wrap;
         }
 
         .priority-high { border-left: 4px solid #dc3545; }
@@ -612,27 +617,51 @@
         .timeline-container {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 12px;
+            width: 100%;
         }
 
         .timeline-bar {
-            height: 6px;
-            width: 100px;
-            background-color: #e0e0e0;
-            border-radius: 3px;
+            flex: 1;
+            height: 10px;
+            background-color: #e9edf3;
+            border-radius: 999px;
             overflow: hidden;
-            margin-bottom: 5px;
+            position: relative;
+            box-shadow: inset 0 1px 2px rgba(0,0,0,0.08);
         }
 
         .timeline-progress {
             height: 100%;
-            border-radius: 3px;
+            border-radius: 999px;
             transition: width 0.5s ease, background-color 0.5s ease;
+            background: linear-gradient(90deg, #4dabf7, #1a73e8);
         }
 
         .timeline-dates {
             font-size: 11px;
             color: #666;
+            min-width: 120px;
+            text-align: right;
+        }
+
+        .timeline-percent {
+            font-size: 12px;
+            font-weight: 600;
+            color: #1a73e8;
+            min-width: 40px;
+            text-align: right;
+        }
+
+        .task-item .color-picker {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
+        .task-item .color-option {
+            width: 18px;
+            height: 18px;
         }
 
         .subheading {
@@ -1477,21 +1506,21 @@
             let timelineHTML = '';
             if (task.startDate && task.dueDate) {
                 const progress = calculateTimelineProgress(task.startDate, task.dueDate);
-                
-                let progressColor;
-                if (progress.percentage < 33) {
-                    progressColor = '#28a745';
-                } else if (progress.percentage < 66) {
-                    progressColor = '#ffc107';
-                } else {
+                const progressValue = Math.round(progress.percentage);
+
+                // Color by elapsed progress: first third green, second third yellow, final third red (overdue always red)
+                let progressColor = '#28a745';
+                if (progress.status === 'overdue' || progressValue > 66) {
                     progressColor = '#dc3545';
+                } else if (progressValue > 33) {
+                    progressColor = '#ffc107';
                 }
                 
                 timelineHTML = `
                     <div class="timeline-container">
-                        <span>Progress:</span>
+                        <span class="timeline-percent">${progressValue}%</span>
                         <div class="timeline-bar">
-                            <div class="timeline-progress" style="width: ${progress.percentage}%; background-color: ${progressColor}"></div>
+                            <div class="timeline-progress" style="width: ${progressValue}%; background-color: ${progressColor}"></div>
                         </div>
                         <div class="timeline-dates">
                             <span>Due: ${formatDate(task.dueDate)} ${task.dueTime ? task.dueTime : ''}</span>
@@ -1611,15 +1640,18 @@
             const end = new Date(dueDate);
             
             if (isNaN(start.getTime()) || isNaN(end.getTime())) {
-                return { percentage: 0, status: 'invalid' };
+                return { percentage: 0, remainingPercentage: 0, status: 'invalid' };
             }
             
             const total = end - start;
             const elapsed = now - start;
+            const remaining = end - now;
             
             let percentage = (elapsed / total) * 100;
-            
             percentage = Math.max(0, Math.min(100, percentage));
+
+            let remainingPercentage = (remaining / total) * 100;
+            remainingPercentage = Math.max(0, Math.min(100, remainingPercentage));
             
             let status = 'on-track';
             if (now > end) {
@@ -1628,7 +1660,7 @@
                 status = 'nearing-deadline';
             }
             
-            return { percentage, status };
+            return { percentage, remainingPercentage, status };
         }
 
         function formatDate(dateString) {
