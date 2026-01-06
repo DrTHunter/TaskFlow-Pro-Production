@@ -266,9 +266,10 @@
         .task-item .task-header {
             display: flex;
             align-items: center;
-            gap: 15px;
+            gap: 10px;
             margin-bottom: 12px;
-            padding-right: 80px;
+            padding-right: 60px;
+            flex-wrap: wrap;
         }
 
         .task-item .task-title {
@@ -298,7 +299,7 @@
 
         .task-item .subheading-selector {
             position: static;
-            margin-bottom: 12px;
+            margin: 0;
         }
 
         .task-item .subheading-selector select {
@@ -306,16 +307,16 @@
             border-radius: 6px;
             border: 1px solid #ddd;
             font-size: 13px;
-            min-width: 150px;
+            min-width: 120px;
         }
 
         .task-item .current-step {
-            width: 100%;
+            width: 90%;
             min-height: 38px;
             padding: 10px 12px;
             border-radius: 6px;
             font-size: 14px;
-            margin: 0 0 12px 0;
+            margin: 0 0 12px auto;
             border: 1px solid #ddd;
             background-color: #fff;
         }
@@ -1523,6 +1524,11 @@
                           oninput="updateTaskField(${task.id}, 'title', this.innerText)">
                         ${task.title}
                     </span>
+                    <div class="subheading-selector">
+                        <select onchange="updateTaskField(${task.id}, 'subheading', this.value)">
+                            ${subheadingOptions}
+                        </select>
+                    </div>
                     <div class="complete-checkbox">
                         <input type="checkbox" id="complete-${task.id}" ${task.completed ? 'checked' : ''} 
                                onchange="toggleTask(${task.id})">
@@ -1533,12 +1539,6 @@
                             <i class="fas fa-trash"></i>
                         </button>
                     </div>
-                </div>
-                
-                <div class="subheading-selector">
-                    <select onchange="updateTaskField(${task.id}, 'subheading', this.value)">
-                        ${subheadingOptions}
-                    </select>
                 </div>
                 
                 <textarea class="current-step" placeholder="What's the current step?" 
