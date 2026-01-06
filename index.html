@@ -156,8 +156,6 @@
             overflow: hidden;
             background-color: white;
         }
-
-        /* Content header removed completely */
         
         .iframe-container {
             flex: 1;
@@ -286,6 +284,20 @@
                 <div class="menu-chevron"><i class="fas fa-chevron-down"></i></div>
             </div>
             
+            <!-- New Pomodoro Tab -->
+            <div class="menu-item" onclick="setActive(this); showTab('pomodoro')">
+                <div class="menu-icon"><i class="fas fa-clock"></i></div>
+                <div class="menu-text">Pomodoro</div>
+                <div class="menu-chevron"><i class="fas fa-chevron-down"></i></div>
+            </div>
+            
+            <!-- New Music Tab -->
+            <div class="menu-item" onclick="setActive(this); showTab('music')">
+                <div class="menu-icon"><i class="fas fa-music"></i></div>
+                <div class="menu-text">Music</div>
+                <div class="menu-chevron"><i class="fas fa-chevron-down"></i></div>
+            </div>
+            
             <div class="divider"></div>
             
             <div class="menu-item" onclick="setActive(this); showTab('settings')">
@@ -297,8 +309,6 @@
     </div>
 
     <div class="main-content">
-        <!-- No header - content goes directly to the top -->
-
         <!-- Dashboard Tab - Placeholder -->
         <div id="dashboard" class="placeholder-container active">
             <h2>Dashboard Content</h2>
@@ -337,6 +347,16 @@
             <pre>&lt;div id="calendar" class="iframe-container"&gt;
     &lt;iframe src="YOUR_CALENDAR_URL" class="iframe"&gt;&lt;/iframe&gt;
 &lt;/div&gt;</pre>
+        </div>
+
+        <!-- New Pomodoro Tab - Iframe -->
+        <div id="pomodoro" class="iframe-container">
+            <iframe src="https://drthunter.github.io/Flowmodoro/" class="iframe"></iframe>
+        </div>
+
+        <!-- New Music Tab - Iframe -->
+        <div id="music" class="iframe-container">
+            <iframe src="https://drthunter.github.io/AudioOasis/" class="iframe"></iframe>
         </div>
 
         <!-- Settings Tab - Placeholder -->
