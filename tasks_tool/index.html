@@ -1520,7 +1520,7 @@
                     <div class="timeline-container">
                         <span class="timeline-percent">${progressValue}%</span>
                         <div class="timeline-bar">
-                            <div class="timeline-progress" style="width: ${progressValue}%; background-color: ${progressColor}"></div>
+                            <div class="timeline-progress" style="width: ${progressValue}%; background: ${progressColor}"></div>
                         </div>
                         <div class="timeline-dates">
                             <span>Due: ${formatDate(task.dueDate)} ${task.dueTime ? task.dueTime : ''}</span>
@@ -1585,9 +1585,9 @@
                         <span>Start</span>
                         <div class="datetime-row">
                             <input type="date" value="${task.startDate || ''}" 
-                                   onchange="updateTaskField(${task.id}, 'startDate', this.value)">
+                                   onchange="updateTaskField(${task.id}, 'startDate', this.value); updateTaskTimeline(${task.id})">
                             <input type="time" value="${task.startTime || ''}" 
-                                   onchange="updateTaskField(${task.id}, 'startTime', this.value)">
+                                   onchange="updateTaskField(${task.id}, 'startTime', this.value); updateTaskTimeline(${task.id})">
                         </div>
                     </div>
                     
@@ -1595,9 +1595,9 @@
                         <span>Due</span>
                         <div class="datetime-row">
                             <input type="date" value="${task.dueDate || ''}" 
-                                   onchange="updateTaskField(${task.id}, 'dueDate', this.value)">
+                                   onchange="updateTaskField(${task.id}, 'dueDate', this.value); updateTaskTimeline(${task.id})">
                             <input type="time" value="${task.dueTime || ''}" 
-                                   onchange="updateTaskField(${task.id}, 'dueTime', this.value)">
+                                   onchange="updateTaskField(${task.id}, 'dueTime', this.value); updateTaskTimeline(${task.id})">
                         </div>
                     </div>
                     
@@ -1685,6 +1685,51 @@
                 task.color = color;
                 saveTasks();
                 renderTasks();
+            }
+        }
+
+        function updateTaskTimeline(taskId) {
+            const task = tasks.find(t => t.id === taskId);
+            if (!task) return;
+
+            const taskElement = document.querySelector(`.task-item[data-id="${taskId}"]`);
+            if (!taskElement) return;
+
+            const existingTimeline = taskElement.querySelector('.timeline-container');
+            
+            if (task.startDate && task.dueDate) {
+                const progress = calculateTimelineProgress(task.startDate, task.dueDate);
+                const progressValue = Math.round(progress.percentage);
+
+                let progressColor = '#28a745';
+                if (progress.status === 'overdue' || progressValue > 66) {
+                    progressColor = '#dc3545';
+                } else if (progressValue > 33) {
+                    progressColor = '#ffc107';
+                }
+
+                const timelineHTML = `
+                    <div class="timeline-container">
+                        <span class="timeline-percent">${progressValue}%</span>
+                        <div class="timeline-bar">
+                            <div class="timeline-progress" style="width: ${progressValue}%; background: ${progressColor}"></div>
+                        </div>
+                        <div class="timeline-dates">
+                            <span>Due: ${formatDate(task.dueDate)} ${task.dueTime ? task.dueTime : ''}</span>
+                        </div>
+                    </div>
+                `;
+
+                if (existingTimeline) {
+                    existingTimeline.outerHTML = timelineHTML;
+                } else {
+                    const taskMeta = taskElement.querySelector('.task-meta');
+                    if (taskMeta) {
+                        taskMeta.insertAdjacentHTML('beforeend', timelineHTML);
+                    }
+                }
+            } else if (existingTimeline) {
+                existingTimeline.remove();
             }
         }
 
