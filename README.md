@@ -94,21 +94,3 @@ Please follow standard GitHub workflow and include clear commit messages.
 This project is licensed under the MIT License — feel free to use, modify, and share.
 You can replace this with your preferred license.
 
-
----
-
-🙌 Acknowledgements
-
-Thanks to everyone who contributed to this tool and helped make workplace productivity more streamlined! 🎉
-
----
-
-### Tips to improve your README further
-
-✅ Add **screenshots** or a demo GIF  
-✅ Add a **Tech Stack** section (e.g., HTML/CSS/JS frameworks)  
-✅ Add **installation steps specific to your build** (if any)  
-✅ Add **Contribution Guidelines** and **Issue Templates**  
-✅ Add **Badges** (build status, license, stars)
-
-If you want, I can also generate a **README with visuals** (screenshots you upload) or **a badge section** — just let me know!0
