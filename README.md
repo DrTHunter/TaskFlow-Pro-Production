@@ -39,7 +39,7 @@ Ensure you have the following installed:
 
 Clone the repository:
 
-```bash
+bash
 git clone https://github.com/drthunter/Tempo-Workplace_Management_Tool.git
 cd Tempo-Workplace_Management_Tool
 
