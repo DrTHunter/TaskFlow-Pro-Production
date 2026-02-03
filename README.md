@@ -91,6 +91,9 @@ Please follow standard GitHub workflow and include clear commit messages.
 
 📄 License
 
-This project is licensed under the MIT License — feel free to use, modify, and share.
-You can replace this with your preferred license.
+[![License: CC BY-NC 4.0](https://img.shields.io/badge/License-CC%20BY--NC%204.0-lightgrey.svg)](https://creativecommons.org/licenses/by-nc/4.0/)
 
+This project is licensed under **CC BY-NC 4.0**.  
+**© 2026 Trent Hunter**
+
+Use, remix, and share freely — but **no commercial use** is allowed.
